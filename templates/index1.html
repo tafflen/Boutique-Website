@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta No.="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elshaddai Boutique</title>
+
+    <link rel="icon" href="Imgs_Boutique/BoutiqueFrontDisplay.jpg">
+    <!-- <link rel="stylesheet" href="stylesBoutique.css"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesBoutique.css') }}">
+</head>
+<body>
+
+    <!-- Navigation bar for linking to other pages -->
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="#shop">Categories</a></li>
+               <li><a href="{{ url_for('about') }}">About</a></li> 
+                <li><a href="{{ url_for('contact') }}">YOU</a></li>
+                <li><a href="{{ url_for('handle_login')}}">Login</a></li>
+                <li><a href="{{ url_for('register')}}">Register</a></li>
+
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero section with a large background image and an introduction to the boutique -->
+    <section class="hero">
+        <h1>WELCOME TO ELSHADDAI BOUTIQUE</h1>
+        <p>Discover unique fashion that speaks your style.</p>
+        <!-- <img src="Imgs_Boutique/BoutiqueFrontDisplay.jpg" /> -->
+        <a href="products.html" class="cta-button">Shop Now</a>
+    </section>
+
+    <div class="Searchbar">
+    <input placeholder="SEARCH">
+    </div>
+
+    <!-- Shop Page -->
+    <section class="shop" id="shop">
+        <h2>Featured Products</h2>
+        <h5>YOU CAN STITCH DRESSES OF YOUR CHOICE!</h5>
+
+    <div class ="gallery-container">
+        <div class="product-grid">
+            <div class="product-card">
+                <!-- <img src="Imgs_Boutique/Product1.jpg" alt="Product 1"> -->
+
+                <h3>Product No.1</h3>
+                <p>₹ 1500.00</p>
+                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                <img src="Imgs_Boutique/Product2.jpg" alt="Product 1">
+                <h3>Product No.2</h3>
+                <p>₹ 1500.00</p>
+                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                <img src="Imgs_Boutique/Product3.jpg" alt="Product 1">
+                <h3>Product No.3</h3>
+                <p>₹ 1500.00</p>
+                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                <img src="Imgs_Boutique/Product4.jpg" alt="Product 1">
+                <h3>Product No.4</h3>
+                <p>₹ 1500.00</p>
+                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                <img src="Imgs_Boutique/Product5.jpg" alt="Product 1">
+                <h3>Product No.5</h3>
+                <p>₹ 1500.00</p>
+                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                <img src="Imgs_Boutique/Product6.jpg" alt="Product 1">
+                <h3>Product No.6</h3>
+                <p>₹ 1500.00</p>
+                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                <img src="Imgs_Boutique/Product7.jpg" alt="Product 1">
+                <h3>Product No.7</h3>
+                <p>₹ 1500.00</p>
+                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                <img src="Imgs_Boutique/Product8.jpg" alt="Product 1">
+                <h3>Product No.8</h3>
+                <p>₹ 1500.00</p>
+                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+            
+            <div class="product-card">
+                <img src="Imgs_Boutique/Product9.jpg" alt="Product 1">
+                <h3>Product No.9</h3>
+                <p>₹ 1500.00</p>
+                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+             <img src="Imgs_Boutique/Product10.jpg" alt="Product 1">
+                <h3>Product No.10</h3>
+                <p>₹ 1500.00</p>
+                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+        </div>
+        
+    </div>
+    </section>
+
+
+<section class="shop" id="shop">
+        <h2>OUR POPULAR DESIGNS</h2>
+
+    <div class ="gallery-container">
+        <div class="product-grid">
+            <div class="product-card">
+                 <img src="Imgs_Boutique/Product11.jpg" alt="Product 11">
+                <h3>Product No.11</h3>
+                <p>₹ 1500.00</p>
+               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+               <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                 <img src="Imgs_Boutique/Product12.jpg" alt="Product 12">
+                <h3>Product No.12</h3>
+                <p>₹ 1500.00</p>
+               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+               <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                 <img src="Imgs_Boutique/Product13.jpg" alt="Product 13">
+                <h3>Product No.13</h3>
+                <p>₹ 1500.00</p>
+               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+               <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+
+            <div class="product-card">
+                 <img src="Imgs_Boutique/Product14.jpg" alt="Product 14">
+                <h3>Product No.14</h3>
+                <p>₹ 1500.00</p>
+               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+               <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+
+            <div class="product-card">
+                 <img src="Imgs_Boutique/Product15.jpg" alt="Product 15">
+                <h3>Product No.15</h3>
+                <p>₹ 1500.00</p>
+               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+               <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+
+            <div class="product-card">
+                 <img src="Imgs_Boutique/Product16.jpg" alt="Product 16">
+                <h3>Product No.16</h3>
+                <p>₹ 1500.00</p>
+               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+               <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+
+            <div class="product-card">
+                 <img src="Imgs_Boutique/Product17.jpg" alt="Product 17">
+                <h3>Product No.17</h3>
+                <p>₹ 1500.00</p>
+               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+               <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+
+            <div class="product-card">
+                 <img src="Imgs_Boutique/Product18.jpg" alt="Product 18">
+                <h3>Product No.18</h3>
+                <p>₹ 1500.00</p>
+               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+               <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                 <img src="Imgs_Boutique/Product19.jpg" alt="Product 18">
+                <h3>Product No.19</h3>
+                <p>₹ 1500.00</p>
+               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+               <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+            <div class="product-card">
+                 <img src="Imgs_Boutique/Product20.jpg" alt="Product 18">
+                <h3>Product No.20</h3>
+                <p>₹ 1500.00</p>
+               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Wishlist</button>
+               <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'IMAGES/177587b2-348e-4ee5-8c27-512aad2380ec.jpg')">Add to Cart</button>
+            </div>
+
+
+        </div>
+    </div>
+</section>
+
+
+    <h2>reviews</h2>
+<div class="review-container">
+  <div class="review">⭐️⭐️⭐️⭐️⭐️<br>“Loved the fabric and the fit!”</div>
+  <div class="review">⭐️⭐️⭐️⭐️<br>“Quick delivery & beautiful design.”</div>
+  <div class="review">⭐️⭐️⭐️⭐️⭐️<br>“Excellent service. Will order again.”</div>
+  <div class="review">⭐️⭐️⭐️<br>“Nice product but delivery was slow.”</div>
+  <div class="review">⭐️⭐️⭐️⭐️⭐️<br>“Loved the fabric and the fit!”</div>
+  <div class="review">⭐️⭐️⭐️⭐️<br>“Quick delivery & beautiful design.”</div>
+</div>
+
+
+    <!-- Feature section to highlight unique selling points -->
+     <!-- <h5 class="ShopHere">Shop here for</h5> -->
+    <!-- <section class="features">
+        <div class="feature-item">
+            <h2>Exclusive Designs</h2>
+            <p>Handcrafted pieces that you won’t find anywhere else.</p>
+        </div>
+
+        <div class="feature-item">
+            <h2>Sustainable Fashion</h2>
+            <p>We care about the environment. All our materials are eco-friendly.</p>
+        </div>
+
+        <div class="feature-item">
+            <h2>Personalized Shopping</h2>
+            <p>Get styling advice and personalized recommendations.</p>
+        </div>
+    </section> -->
+
+    <!-- Footer section with social media links -->
+    <footer>
+        <p>&copy; 2026 Elshaddai Boutique | Follow us on
+            <a href="#">Instagram</a>
+            <a href="#">Facebook</a>
+            <a href="https://www.youtube.com/@el-shaddaiboutiqe4989">YouTube</a>
+        </p>
+    </footer>
+</body>
+</html>
+  

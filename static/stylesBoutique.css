@@ -1,0 +1,240 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body {
+    font-family:'Trebuchet MS';
+    font-size: large;
+    background-color: rgba(224, 217, 15, 0.192);
+    color: black;
+}
+
+
+
+form {
+    width: 300px;
+    margin: 50px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+}
+
+input, button {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+
+h1{
+    text-transform: uppercase;
+    font-size: 3rem;
+}
+h2{
+    text-transform: uppercase;
+    font-size: 1.5rem;
+    color: black;
+}
+h5{
+    font-size: 0.8rem;
+    color: goldenrod;
+}
+
+/* nav */
+nav{
+    /* margin:10px 20px 10px 20px; */
+    padding: 10px 20px 10px 20px;
+    background-color: rgb(92, 144, 144);;
+}
+nav ul li{
+    display:inline-block;
+    list-style-type: none;
+    text-transform: uppercase;
+    text-align: center;
+    justify-items: center;
+    border-radius: 50%;
+    padding-right: 4%;
+}
+nav ul{
+    gap: 30px;
+    justify-content: space-evenly;
+    gap:40px;
+    align-items: end;
+}
+nav ul a{
+    text-decoration: none;
+    color: black;
+    font-weight: bolder;
+}
+
+/* hero */
+.hero h1{
+    text-align: center;
+    margin-top: 3rem;
+    padding: 2%;
+    color: beige;
+    text-shadow: 2px 2px 5px rgb(0, 0, 0);
+    font-family: cursive;
+}
+.hero p{
+    text-transform: uppercase;
+    text-align: center;
+    font-size: 1.5rem;
+    line-height: 30px;
+    color: goldenrod;
+    text-shadow: 2px 3px 1px black;
+    margin-bottom: 25px;}
+.hero{
+    width: 100%;
+    min-height:80vh;
+    padding: 30px 20px;
+    background-image: url('Imgs_Boutique/WebFDisplay.jpg');
+    background-repeat: repeat-x;
+    background-blend-mode: saturation , soft-light;
+    /* background-blend-mode: soft-light; */
+}
+.hero a{
+    margin-left: 45%;
+}
+/* hero button */
+.cta-button{
+    text-decoration: none;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+    backdrop-filter: blur(100px);
+    border: 1px rgb(173, 155, 34)solid;
+    padding: 10px;
+    margin-top: 40px;
+    border-radius: 25px;
+}
+
+.cta-button:hover {
+    background-color: rgba(222, 201, 70, 0.712);
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* searchbar */
+.Searchbar{
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+.Searchbar input{
+    padding: 10px;
+    width: 30rem;
+}
+
+
+/* shop */
+.shop h3{
+    font-size: 15px;
+}
+.shop h2{
+    margin-top: 30px;
+    margin-bottom: 5px;
+}
+.shop p{
+    font-size: 12px;
+}
+
+
+/* GALLERY CONTAINER */
+.gallery-container {
+    background-color: #5f9494; 
+    padding: 40px 20px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 8fr));
+    gap: 30px;               
+    max-width: 1200px;        
+    margin: 0 auto;            
+}
+
+.product-card {
+    text-align: center;
+}
+
+.product-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;         
+    border-radius: 4px;
+}
+
+.wishlist-btn,
+.cart-btn {
+    margin: 5px 0;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+
+
+
+/* reviews */
+.review{
+    background-color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 250px;
+    min-height: 150px;
+    display: grid;
+    align-content: center;
+    border: 1px rgb(92, 144, 144) solid;
+    border-radius: 10px;
+}
+.review-container{
+    display: flex;
+    padding-right: 10px;
+    margin-left: 10px;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+
+.ShopHere{
+    font-family: monospace;
+    font-size: 20px;
+    text-align: center;
+    color: rgb(92, 144, 144);;
+    text-transform: uppercase;
+    margin-bottom: 0.6px;
+}
+/* features */
+.features{
+    display: flex;
+    margin-top: 0%;
+    padding-right: 10px;
+    gap: 30px;
+    /* width: 250px; */
+    min-height: 150px;
+    align-items: center;
+    justify-content: center;   /* ✅ centers containers horizontally */
+    align-items: center;
+    width: 90%;
+}
+.feature-item{
+    background-color: white;
+    padding:0px 10px 15px 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+
+footer{
+    text-align: center;
+    background-color: rgb(92, 144, 144);
+    padding: 10px;
+}
+footer a{
+    text-decoration: none;     
+    color: white;
+}

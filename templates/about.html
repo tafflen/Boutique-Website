@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta No.="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elshaddai Boutique</title>
+
+    <link rel="icon" href="Imgs_Boutique/BoutiqueFrontDisplay.jpg">
+    <!-- <link rel="stylesheet" href="stylesBoutique.css"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesBoutique.css') }}">
+</head>
+<body>
+        
+    <!-- Navigation bar for linking to other pages -->
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="#shop">Categories</a></li>
+               <li><a href="{{ url_for('about') }}">About</a></li> 
+                <li><a href="{{ url_for('contact') }}">YOU</a></li>
+                <li><a href="{{ url_for('handle_login')}}">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+<div class="container">
+  <!-- <div class="slide-track"> -->
+    <div  class="AboutUs">
+       <h1><b>🌸 About Us</b></h1>
+
+      <br> <h3>Welcome to <b>Elshaddai Boutique</b>, where fashion meets meaning.</h3> <br> <br>
+      Founded with love and creativity, our boutique is more than just a collection of clothes — it’s a reflection of style, story, and soul.<br><br> 
+      Every piece we offer is handpicked or designed with care,focusing on quality, elegance, and comfort.<br><br> We believe fashion should empower, not overwhelm. Whether you're dressing for a casual outing or a special day, our designs help you express your uniqueness with confidence.<br> <br> 
+<br>
+       <b><h3>👗 What We Value: </h3></b> <br>
+
+       <ul>
+<li>Ethical & thoughtful sourcing</li><br> 
+<li>Limited, meaningful collections</li><br> Comfort with charm<br> 
+<li>Sustainable practices (where possible)</li><br> 
+       </ul> <br>
+
+        At Elshaddai Boutique, you're not just a customer — you're part of our story.<br> <br> Thank you for supporting small businesses, slow fashion, and creative dreams. 💫<br><br><br>
+    </div>
+
+
+
+    <div class="contact">
+       <b><h1>📞 Contact Us</h1></b> <br> 
+       We’d love to hear from you! Whether it’s a question, suggestion, or just a hello — reach out any time.<br> <br>
+
+     📧 Email: contact@elshaddai.com <br> 
+     📱 Phone: +91-XXXXXXXXXX<br> 
+     🏡 Address: 123 Boutique Lane, Chennai, India<br> <br>  
+
+    🕐 We usually reply within 24 hours.<br> Follow us on:<br> 
+    🌐 Instagram: [@boutique]<br> 
+    🌐 Facebook: [Elshaddai Boutique]
+   </div>
+
+</body>
+<!-- </div> -->
