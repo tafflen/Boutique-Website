@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Boutique</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesBoutique.css') }}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+    <a href="/">Home</a>
+    <!-- <a href="#">Categories</a> -->
+    <a href="/about">About</a>
+
+    {% if session.get("user") %}
+    
+    <!-- Show Dashboard link only if admin -->
+    {% if session.get("is_admin") == 1 %}
+        <a href="/admin">Dashboard</a>
+    {% endif %}
+
+        <a href="#">Profile</a>
+        <a href="/logout">Logout</a>
+    {% else %}
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+    {% endif %}
+</nav>
+
+<!-- FLASH ALERTS -->
+ <!-- Flash Messages — shows success/error/warning messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+<!-- {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert {{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %} -->
+
+<!-- PAGE CONTENT -->
+{% block content %}{% endblock %}
+
+</body>
+</html>

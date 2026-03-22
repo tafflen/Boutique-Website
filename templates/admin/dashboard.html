@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Boutique</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f8f9fa; }
+
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: #1a1a2e;
+      color: white;
+      padding: 30px 20px;
+      position: fixed;
+    }
+
+    .sidebar h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      color: #e0aaff;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #ccc;
+      text-decoration: none;
+      padding: 10px 0;
+      font-size: 14px;
+      border-bottom: 1px solid #333;
+    }
+
+    .sidebar a:hover { color: white; }
+
+    .main-content {
+      margin-left: 240px;
+      padding: 40px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      text-align: center;
+    }
+
+    .stat-card h3 { font-size: 32px; font-weight: 700; color: #1a1a2e; }
+    .stat-card p  { color: #888; font-size: 14px; margin: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Boutique Admin</h2>
+    <a href="/admin">Dashboard</a>
+    <a href="/admin/products">Products</a>
+    <a href="/admin/orders">Orders</a>
+    <a href="/">View Store</a>
+    <a href="/logout">Logout</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h1 style="font-size:24px; font-weight:600; margin-bottom:8px;">
+      Welcome, {{ session['user'] }} 👋
+    </h1>
+    <p style="color:#888; margin-bottom:32px;">Here's your store overview.</p>
+
+    <!-- Stat Cards -->
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="stat-card">
+          <h3 id="product-count">{{ total_products }}</h3>
+          <p>Total Products</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card">
+          <h3>--</h3>
+          <p>Total Orders</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card">
+          <h3>{{ total_users }}</h3>
+          <p>Total Users</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card">
+          <h3>--</h3>
+          <p>Revenue</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:40px; color:#aaa; font-size:13px;">
+      More features coming as we build Day by Day.
+    </div>
+
+  </div>
+
+</body>
+</html>

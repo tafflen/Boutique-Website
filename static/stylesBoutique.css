@@ -12,7 +12,23 @@ body {
     color: black;
 }
 
+.alert {
+    width: 300px;
+    margin: 20px auto;
+    padding: 10px;
+    text-align: center;
+    border-radius: 5px;
+}
 
+.success {
+    background: #4CAF50;
+    color: white;
+}
+
+.error {
+    background: #f44336;
+    color: white;
+}
 
 form {
     width: 300px;
@@ -56,7 +72,7 @@ nav ul li{
     text-align: center;
     justify-items: center;
     border-radius: 50%;
-    padding-right: 4%;
+    /* padding-right: 60%; */
 }
 nav ul{
     gap: 30px;
@@ -64,7 +80,12 @@ nav ul{
     gap:40px;
     align-items: end;
 }
-nav ul a{
+/* nav ul a{
+    text-decoration: none;
+    color: black;
+    font-weight: bolder;
+} */
+a{
     text-decoration: none;
     color: black;
     font-weight: bolder;

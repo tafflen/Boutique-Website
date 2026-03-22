@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,19 +13,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesBoutique.css') }}">
 </head>
 <body>
-        
-    <!-- Navigation bar for linking to other pages -->
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="#shop">Categories</a></li>
-               <li><a href="{{ url_for('about') }}">About</a></li> 
-                <li><a href="{{ url_for('contact') }}">YOU</a></li>
-                <li><a href="{{ url_for('handle_login')}}">Login</a></li>
-            </ul>
-        </nav>
-    </header>
 
 <div class="container">
   <!-- <div class="slide-track"> -->
@@ -61,3 +51,4 @@
 
 </body>
 <!-- </div> -->
+{% endblock %}

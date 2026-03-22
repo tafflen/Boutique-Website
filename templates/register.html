@@ -1,6 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='stylesBoutique.css') }}">
 <form method="POST" action="/register">
     <input type="text" name="username" placeholder="Username">
     <input type="password" name="password" placeholder="Password">
     <button type="submit">Register</button>
 </form>
+{% endblock %}
