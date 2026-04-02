@@ -178,6 +178,87 @@ def admin_products():
 
     return render_template("admin/products.html", products=products)
 
+# ─────────────────────────────────────────
+# ADD PRODUCT — GET shows form, POST saves it
+# ─────────────────────────────────────────
+@app.route("/admin/products/add", methods=["GET", "POST"])
+def add_product():
+
+    # Protection — not logged in
+    if not session.get("user"):
+        flash("Please login to continue.", "error")
+        return redirect("/login")
+
+    # Protection — not admin
+    if session.get("is_admin") != 1:
+        flash("Access denied. Admins only.", "error")
+        return redirect("/")
+
+    if request.method == "POST":
+
+        # ── Step 1: Get form data
+        name        = request.form.get("name", "").strip()
+        description = request.form.get("description", "").strip()
+        category    = request.form.get("category", "").strip()
+        price       = request.form.get("price", "").strip()
+        stock       = request.form.get("stock", "").strip()
+
+        # ── Step 2: Validate — check nothing important is empty
+        errors = []
+
+        if not name:
+            errors.append("Product name is required.")
+
+        if not price:
+            errors.append("Price is required.")
+
+        if not stock:
+            errors.append("Stock quantity is required.")
+
+        if not category:
+            errors.append("Please select a category.")
+
+        # ── Step 3: Validate price and stock are valid numbers
+        try:
+            price = float(price)   # converts "1299" → 1299.0
+            if price < 0:
+                errors.append("Price cannot be negative.")
+        except ValueError:
+            # ValueError fires if price contains letters like "abc"
+            errors.append("Price must be a valid number.")
+
+        try:
+            stock = int(stock)     # converts "10" → 10
+            if stock < 0:
+                errors.append("Stock cannot be negative.")
+        except ValueError:
+            errors.append("Stock must be a whole number.")
+
+        # ── Step 4: If any errors → show them, keep form filled
+        if errors:
+            for error in errors:
+                flash(error, "error")
+            return render_template("admin/add_product.html")
+
+        # ── Step 5: All valid → INSERT into database
+        db = get_db()
+        cursor = db.cursor(buffered=True)
+
+        cursor.execute(
+            "INSERT INTO products (name, description, category, price, stock) VALUES (%s, %s, %s, %s, %s)",
+            (name, description, category, price, stock)
+        )
+        db.commit()   # ← save changes permanently
+        cursor.close()
+        db.close()
+
+        flash(f"'{name}' added successfully!", "success")
+        return redirect("/admin/products")  # ← go back to product list
+
+    # GET request → just show the empty form
+    return render_template("admin/add_product.html")
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
