@@ -2,9 +2,29 @@ from flask import Flask, render_template, request, redirect, flash, session
 import mysql.connector
 import bcrypt
 import os
+from werkzeug.utils import secure_filename  # sanitizes filenames
+
 
 app = Flask(__name__)
 app.secret_key = 'boutique@#xK92!mPqL77zRt'  # Strong secret key
+
+# ─────────────────────────────────────────
+# FILE UPLOAD CONFIG
+# ─────────────────────────────────────────
+
+# Folder where uploaded images will be saved
+UPLOAD_FOLDER = os.path.join('static', 'uploads')
+
+# Only these file types are allowed — security measure
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
+
+# Max file size — 5MB (5 * 1024 * 1024 bytes)
+MAX_CONTENT_LENGTH = 5 * 1024 * 1024
+
+app.config['UPLOAD_FOLDER']      = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+
+
 
 # ─────────────────────────────────────────
 # DB HELPER — fresh connection every time
@@ -13,11 +33,22 @@ app.secret_key = 'boutique@#xK92!mPqL77zRt'  # Strong secret key
 def get_db():
     return mysql.connector.connect(
         host="localhost",
-        user="root",
+        user="root",    
         password="12345",
         database="boutique"
     )
 
+# ─────────────────────────────────────────
+# HELPER — check if file extension is allowed
+# ─────────────────────────────────────────
+def allowed_file(filename):
+    # filename = "product.jpg"
+    # filename.rsplit('.', 1) = ["product", "jpg"]
+    # [1] = "jpg"
+    # .lower() = "jpg"
+    # check if "jpg" is in ALLOWED_EXTENSIONS
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route("/")
 def home():
@@ -169,7 +200,7 @@ def admin_products():
     cursor = db.cursor(buffered=True)
 
     # Fetch all products from database
-    cursor.execute("SELECT id, name, category, price, stock FROM products")
+    cursor.execute("SELECT id, name, category, price, stock,image FROM products")
     products = cursor.fetchall()   # fetchall() returns list of tuples
     # Example: [(1, 'Silk Saree', 'Sarees', 1299.00, 10), (2, ...)]
 
@@ -184,80 +215,101 @@ def admin_products():
 @app.route("/admin/products/add", methods=["GET", "POST"])
 def add_product():
 
-    # Protection — not logged in
+    # Protection
     if not session.get("user"):
         flash("Please login to continue.", "error")
         return redirect("/login")
 
-    # Protection — not admin
     if session.get("is_admin") != 1:
         flash("Access denied. Admins only.", "error")
         return redirect("/")
 
     if request.method == "POST":
 
-        # ── Step 1: Get form data
+        # ── Step 1: Get text fields
         name        = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
         category    = request.form.get("category", "").strip()
         price       = request.form.get("price", "").strip()
         stock       = request.form.get("stock", "").strip()
 
-        # ── Step 2: Validate — check nothing important is empty
+        # ── Step 2: Get uploaded file
+        # request.files is separate from request.form
+        # request.form  → text fields
+        # request.files → file fields
+        image_file = request.files.get("image")
+
+        # ── Step 3: Validate text fields
         errors = []
 
         if not name:
             errors.append("Product name is required.")
-
         if not price:
             errors.append("Price is required.")
-
         if not stock:
             errors.append("Stock quantity is required.")
-
         if not category:
             errors.append("Please select a category.")
 
-        # ── Step 3: Validate price and stock are valid numbers
         try:
-            price = float(price)   # converts "1299" → 1299.0
+            price = float(price)
             if price < 0:
                 errors.append("Price cannot be negative.")
         except ValueError:
-            # ValueError fires if price contains letters like "abc"
             errors.append("Price must be a valid number.")
 
         try:
-            stock = int(stock)     # converts "10" → 10
+            stock = int(stock)
             if stock < 0:
                 errors.append("Stock cannot be negative.")
         except ValueError:
             errors.append("Stock must be a whole number.")
 
-        # ── Step 4: If any errors → show them, keep form filled
+        # ── Step 4: Handle image upload
+        image_filename = None  # default — no image
+
+        if image_file and image_file.filename != '':
+            # image_file.filename != '' means user actually selected a file
+
+            if allowed_file(image_file.filename):
+                # secure_filename removes dangerous characters from filename
+                # "My Product!!.jpg" → "My_Product__.jpg"
+                filename = secure_filename(image_file.filename)
+
+                # Build full path: static/uploads/filename.jpg
+                save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+                # Actually save the file to disk
+                image_file.save(save_path)
+
+                # Store just the filename in DB — not the full path
+                image_filename = filename
+
+            else:
+                errors.append("Image must be JPG, PNG, or WEBP format.")
+
+        # ── Step 5: If errors → stop and show them
         if errors:
             for error in errors:
                 flash(error, "error")
             return render_template("admin/add_product.html")
 
-        # ── Step 5: All valid → INSERT into database
+        # ── Step 6: Insert into database
         db = get_db()
         cursor = db.cursor(buffered=True)
 
         cursor.execute(
-            "INSERT INTO products (name, description, category, price, stock) VALUES (%s, %s, %s, %s, %s)",
-            (name, description, category, price, stock)
+            "INSERT INTO products (name, description, category, price, stock, image) VALUES (%s, %s, %s, %s, %s, %s)",
+            (name, description, category, price, stock, image_filename)
         )
-        db.commit()   # ← save changes permanently
+        db.commit()
         cursor.close()
         db.close()
 
         flash(f"'{name}' added successfully!", "success")
-        return redirect("/admin/products")  # ← go back to product list
+        return redirect("/admin/products")
 
-    # GET request → just show the empty form
     return render_template("admin/add_product.html")
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
