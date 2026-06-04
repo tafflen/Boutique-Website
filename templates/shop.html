@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop | Boutique</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fafafa;
+      color: #1a1a2e;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: #1a1a2e;
+      padding: 16px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar .brand {
+      color: #e0aaff;
+      font-size: 22px;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .navbar a {
+      color: #ccc;
+      text-decoration: none;
+      margin-left: 24px;
+      font-size: 14px;
+      transition: color .2s;
+    }
+
+    .navbar a:hover { color: white; }
+
+    /* ── Page Header ── */
+    .page-header {
+      background: linear-gradient(135deg, #1a1a2e, #2d2d4e);
+      color: white;
+      padding: 60px 40px;
+      text-align: center;
+    }
+
+    .page-header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .page-header p {
+      color: #ccc;
+      font-size: 16px;
+    }
+
+    /* ── Filter Bar ── */
+    .filter-bar {
+      background: white;
+      padding: 16px 40px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-bar span {
+      font-size: 13px;
+      color: #888;
+      margin-right: 8px;
+    }
+
+    .filter-btn {
+      padding: 7px 18px;
+      border-radius: 20px;
+      border: 1px solid #e0e0e0;
+      background: white;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      text-decoration: none;
+      color: #555;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: #1a1a2e;
+      color: white;
+      border-color: #1a1a2e;
+    }
+
+    /* ── Product Grid ── */
+    .shop-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 40px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 28px;
+    }
+
+    /* ── Product Card ── */
+    .product-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      transition: transform .2s, box-shadow .2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .product-image-placeholder {
+      width: 100%;
+      height: 260px;
+      background: linear-gradient(135deg, #f0eeff, #e8e0ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+
+    .product-info {
+      padding: 18px 20px 20px;
+    }
+
+    .product-category {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6c4fcf;
+      margin-bottom: 6px;
+    }
+
+    .product-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .product-price {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .badge-stock {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .in-stock {
+      background: #f0fff4;
+      color: #2e7d32;
+    }
+
+    .out-of-stock {
+      background: #fff0f0;
+      color: #e53935;
+    }
+
+    .btn-view {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 10px;
+      background: #1a1a2e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+      text-decoration: none;
+      transition: background .2s;
+    }
+
+    .btn-view:hover {
+      background: #2d2d4e;
+      color: white;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #aaa;
+      grid-column: 1 / -1;
+    }
+
+    .empty-state h2 { font-size: 22px; margin-bottom: 10px; }
+    .empty-state p  { font-size: 15px; }
+
+    /* ── Flash Messages ── */
+    .flash-container { max-width: 1200px; margin: 20px auto; padding: 0 40px; }
+    .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 10px; }
+    .alert-error   { background: #fff0f0; color: #e53935; }
+    .alert-success { background: #f0fff4; color: #2e7d32; }
+
+    /* ── Footer ── */
+    .footer {
+      background: #1a1a2e;
+      color: #888;
+      text-align: center;
+      padding: 30px;
+      margin-top: 60px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="/" class="brand">Boutique</a>
+    <div>
+      <a href="/">Home</a>
+      <a href="/shop">Shop</a>
+      <a href="/about">About</a>
+      <a href="/contactBoutique">Contact</a>
+      {% if session.get("is_admin") == 1 %}
+        <a href="/admin">Dashboard</a>
+      {% endif %}
+      {% if session.get("user") %}
+        <a href="/logout">Logout</a>
+      {% else %}
+        <a href="/login">Login</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Our Collection</h1>
+    <p>Handpicked pieces for the modern woman</p>
+  </div>
+
+  <!-- Category Filter Bar -->
+  <div class="filter-bar">
+    <span>Filter:</span>
+    <a href="/shop" 
+    class="filter-btn {% if not selected_category %}active{% endif %}">All</a>
+
+    <a href="/shop?category=Sarees"
+    class="filter-btn {% if selected_category == 'Sarees' %}active{% endif %}">Sarees</a>
+
+    <a href="/shop?category=Tops"
+    class="filter-btn {% if selected_category == 'Tops' %}active{% endif %}">Tops</a>
+
+    <a href="/shop?category=Kurtis"
+    class="filter-btn {% if selected_category == 'Kurtis' %}active{% endif %}">Kurtis</a>
+
+    <a href="/shop?category=Lehengas"
+    class="filter-btn {% if selected_category == 'Lehengas' %}active{% endif %}">Lehengas</a>
+
+    <a href="/shop?category=Accessories"
+    class="filter-btn {% if selected_category == 'Accessories' %}active{% endif %}">Accessories</a>
+  </div>
+
+  <!-- Flash Messages -->
+  <div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Product Grid -->
+  <div class="shop-container">
+    <div class="product-grid">
+
+      {% if products %}
+        {% for product in products %}
+        <a href="/product/{{ product[0] }}" class="product-card">
+
+          <!-- Product Image -->
+          {% if product[5] %}
+            <img class="product-image"
+                 src="{{ url_for('static', filename='uploads/' + product[5]) }}"
+                 alt="{{ product[1] }}">
+          {% else %}
+            <div class="product-image-placeholder">🛍️</div>
+          {% endif %}
+
+          <!-- Product Info -->
+          <div class="product-info">
+            <div class="product-category">{{ product[2] }}</div>
+            <div class="product-name">{{ product[1] }}</div>
+
+            <div class="product-footer">
+              <div class="product-price">₹{{ "%.2f"|format(product[3]) }}</div>
+              {% if product[4] > 0 %}
+                <span class="badge-stock in-stock">In Stock</span>
+              {% else %}
+                <span class="badge-stock out-of-stock">Out of Stock</span>
+              {% endif %}
+            </div>
+
+            <a href="/product/{{ product[0] }}" class="btn-view">View Product</a>
+          </div>
+
+        </a>
+        {% endfor %}
+
+      {% else %}
+        <div class="empty-state">
+          <h2>No products yet</h2>
+          <p>Check back soon — new arrivals coming!</p>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    © 2024 Boutique. All rights reserved.
+  </div>
+
+</body>
+</html>

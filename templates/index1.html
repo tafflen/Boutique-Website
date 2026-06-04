@@ -1,265 +1,128 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta No.="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elshaddai Boutique</title>
 
-    <link rel="icon" href="Imgs_Boutique/BoutiqueFrontDisplay.jpg">
-    <!-- <link rel="stylesheet" href="stylesBoutique.css"> -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='stylesBoutique.css') }}">
-</head>
-<body>
+<!-- ═══════════════════════════════════════
+     HERO SECTION
+     Full screen banner with boutique name,
+     tagline and a "Shop Now" button
+═══════════════════════════════════════ -->
+<section class="hero">
+    <h1>WELCOME TO ELSHADDAI BOUTIQUE</h1>
+    <p>Discover unique fashion that speaks your style.</p>
+    <!-- Clicking this takes customer to /shop page -->
+    <a href="/shop" class="cta-button">Shop Now</a>
+</section>
 
-    <!-- Navigation bar for linking to other pages -->
-    <!-- <header>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('home') }}">Home</a></li>
-                <li><a href="#shop">Categories</a></li>
-               <li><a href="{{ url_for('about') }}">About</a></li> 
-                <li><a href="{{ url_for('contact') }}">YOU</a></li>
-                <li><a href="{{ url_for('handle_login')}}">Login</a></li>
-                <li><a href="{{ url_for('register')}}">Register</a></li>
-
-            </ul>
-        </nav>
-    </header> -->
-    <section class="hero">
-        <h1>WELCOME TO ELSHADDAI BOUTIQUE</h1>
-        <p>Discover unique fashion that speaks your style.</p>
-        <!-- <img src="Imgs_Boutique/BoutiqueFrontDisplay.jpg" /> -->
-        <a href="products.html" class="cta-button">Shop Now</a>
-    </section>
-
-    <div class="Searchbar">
+<!-- ═══════════════════════════════════════
+     SEARCH BAR
+     Simple search input — will be wired to
+     search functionality in a later day
+═══════════════════════════════════════ -->
+<div class="Searchbar">
     <input placeholder="SEARCH">
-    </div>
+</div>
 
-    
-    <!-- Hero section with a large background image and an introduction to the boutique -->
- <!-- Shop Page -->
-    <section class="shop" id="shop">
-        <h2>Featured Products</h2>
-        <h5>YOU CAN STITCH DRESSES OF YOUR CHOICE!</h5>
-
-    <div class ="gallery-container">
-        <div class="product-grid">
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product1.jpg') }}" alt="Product 1">
-                <h3>Product No.1</h3>
-                <p>₹ 1500.00</p>
-                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.1', 1500, 'Imgs_Boutique/Product1.jpg')">Add to Wishlist</button>
-                 <button class="cart-btn" onclick="addTo('cart', 'Product No.1', 1500, 'Imgs_Boutique/Product1.jpg')">Add to Cart</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product2.jpg') }}" alt="Product 2">
-                <h3>Product No.2</h3>
-                <p>₹ 1500.00</p>
-                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.2', 1500, 'Imgs_Boutique/Product2.jpg')">Add to Wishlist</button>
-                 <button class="cart-btn" onclick="addTo('cart', 'Product No.2', 1500, 'Imgs_Boutique/Product2.jpg')">Add to Cart</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product3.jpg') }}" alt="Product 3">
-                <h3>Product No.3</h3>
-                <p>₹ 1500.00</p>
-                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.3', 1500, 'Imgs_Boutique/Product3.jpg')">Add to Wishlist</button>
-                 <button class="cart-btn" onclick="addTo('cart', 'Product No.3', 1500, 'Imgs_Boutique/Product3.jpg')">Add to Cart</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product4.jpg') }}" alt="Product 4">
-                <h3>Product No.4</h3>
-                <p>₹ 1500.00</p>
-                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.4', 1500, 'Imgs_Boutique/Product4.jpg')">Add to Wishlist</button>
-                 <button class="cart-btn" onclick="addTo('cart', 'Product No.4', 1500, 'Imgs_Boutique/Product4.jpg')">Add to Cart</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product5.jpg') }}" alt="Product 5">
-                <h3>Product No.5</h3>
-                <p>₹ 1500.00</p>
-                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.5', 1500, 'Imgs_Boutique/Product5.jpg')">Add to Wishlist</button>
-                 <button class="cart-btn" onclick="addTo('cart', 'Product No.5', 1500, 'Imgs_Boutique/Product5.jpg')">Add to Cart</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product6.jpg') }}" alt="Product 6">
-                <h3>Product No.6</h3>
-                <p>₹ 1500.00</p>
-                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.6', 1500, 'Imgs_Boutique/Product6.jpg')">Add to Wishlist</button>
-                 <button class="cart-btn" onclick="addTo('cart', 'Product No.6', 1500, 'Imgs_Boutique/Product6.jpg')">Add to Cart</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product7.jpg') }}" alt="Product 7">
-                <h3>Product No.7</h3>
-                <p>₹ 1500.00</p>
-                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.7', 1500, 'Imgs_Boutique/Product7.jpg')">Add to Wishlist</button>
-                 <button class="cart-btn" onclick="addTo('cart', 'Product No.7', 1500, 'Imgs_Boutique/Product7.jpg')">Add to Cart</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product8.jpg') }}" alt="Product 8">
-                <h3>Product No.8</h3>
-                <p>₹ 1500.00</p>
-                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.8', 1500, 'Imgs_Boutique/Product8.jpg')">Add to Wishlist</button>
-                 <button class="cart-btn" onclick="addTo('cart', 'Product No.8', 1500, 'Imgs_Boutique/Product8.jpg')">Add to Cart</button>
-            </div>
-            
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product9.jpg') }}" alt="Product 9">
-                <h3>Product No.9</h3>
-                <p>₹ 1500.00</p>
-                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.9', 1500, 'Imgs_Boutique/Product9.jpg')">Add to Wishlist</button>
-                 <button class="cart-btn" onclick="addTo('cart', 'Product No.9', 1500, 'Imgs_Boutique/Product9.jpg')">Add to Cart</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product10.jpg') }}" alt="Product 10">
-                <h3>Product No.10</h3>
-                <p>₹ 1500.00</p>
-                 <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.10', 1500, 'Imgs_Boutique/Product10.jpg')">Add to Wishlist</button>
-                 <button class="cart-btn" onclick="addTo('cart', 'Product No.10', 1500, 'Imgs_Boutique/Product10.jpg')">Add to Cart</button>
-            </div>
-        </div>
-        
-    </div>
-    </section>
-
-
+<!-- ═══════════════════════════════════════
+     FEATURED PRODUCTS SECTION
+     Shows products dynamically from database
+     These are real products added by admin
+     from /admin/products/add
+═══════════════════════════════════════ -->
 <section class="shop" id="shop">
-        <h2>OUR POPULAR DESIGNS</h2>
+    <h2>Featured Products</h2>
+    <h5>YOU CAN STITCH DRESSES OF YOUR CHOICE!</h5>
 
-    <div class ="gallery-container">
+    <div class="gallery-container">
         <div class="product-grid">
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product11.jpg') }}" alt="Product 11">
-                <h3>Product No.11</h3>
-                <p>₹ 1500.00</p>
-               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.11', 1500, 'Imgs_Boutique/Product11.jpg')">Add to Wishlist</button>
-               <button class="cart-btn" onclick="addTo('cart', 'Product No.11', 1500, 'Imgs_Boutique/Product11.jpg')">Add to Cart</button>
-            </div>
 
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product12.jpg') }}" alt="Product 12">
-                <h3>Product No.12</h3>
-                <p>₹ 1500.00</p>
-               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.12', 1500, 'Imgs_Boutique/Product12.jpg')">Add to Wishlist</button>
-               <button class="cart-btn" onclick="addTo('cart', 'Product No.12', 1500, 'Imgs_Boutique/Product12.jpg')">Add to Cart</button>
-            </div>
+            {% if featured_products %}
+                <!-- Loop through products fetched from database -->
+                {% for product in featured_products %}
+                <div class="product-card">
 
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product13.jpg') }}" alt="Product 13">
-                <h3>Product No.13</h3>
-                <p>₹ 1500.00</p>
-               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.13', 1500, 'Imgs_Boutique/Product13.jpg')">Add to Wishlist</button>
-               <button class="cart-btn" onclick="addTo('cart', 'Product No.13', 1500, 'Imgs_Boutique/Product13.jpg')">Add to Cart</button>
-            </div>
+                    <!-- Product Image -->
+                    {% if product[5] %}
+                        <!-- If admin uploaded an image → show it -->
+                        <img src="{{ url_for('static', filename='uploads/' + product[5]) }}"
+                             alt="{{ product[1] }}">
+                    {% else %}
+                        <!-- No image uploaded → show placeholder emoji -->
+                        <div style="font-size:60px; text-align:center; padding:40px;">🛍️</div>
+                    {% endif %}
 
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product14.jpg') }}" alt="Product 14">
-                <h3>Product No.14</h3>
-                <p>₹ 1500.00</p>
-               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.14', 1500, 'Imgs_Boutique/Product14.jpg')">Add to Wishlist</button>
-               <button class="cart-btn" onclick="addTo('cart', 'Product No.14', 1500, 'Imgs_Boutique/Product14.jpg')">Add to Cart</button>
-            </div>
+                    <!-- Product Name -->
+                    <h3>{{ product[1] }}</h3>
 
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product15.jpg') }}" alt="Product 15">
-                <h3>Product No.15</h3>
-                <p>₹ 1500.00</p>
-               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.15', 1500, 'Imgs_Boutique/Product15.jpg')">Add to Wishlist</button>
-               <button class="cart-btn" onclick="addTo('cart', 'Product No.15', 1500, 'Imgs_Boutique/Product15.jpg')">Add to Cart</button>
-            </div>
+                    <!-- Product Price — formatted to 2 decimal places -->
+                    <p>₹ {{ "%.2f"|format(product[3]) }}</p>
 
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product16.jpg') }}" alt="Product 16">
-                <h3>Product No.16</h3>
-                <p>₹ 1500.00</p>
-               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.16', 1500, 'Imgs_Boutique/Product16.jpg')">Add to Wishlist</button>
-               <button class="cart-btn" onclick="addTo('cart', 'Product No.16', 1500, 'Imgs_Boutique/Product16.jpg')">Add to Cart</button>
-            </div>
+                    <!-- View Product Button → goes to detail page -->
+                    <a href="/product/{{ product[0] }}"
+                       class="cart-btn">View Product</a>
 
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product17.jpg') }}" alt="Product 17">
-                <h3>Product No.17</h3>
-                <p>₹ 1500.00</p>
-               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.17', 1500, 'Imgs_Boutique/Product17.jpg')">Add to Wishlist</button>
-               <button class="cart-btn" onclick="addTo('cart', 'Product No.17', 1500, 'Imgs_Boutique/Product17.jpg')">Add to Cart</button>
-            </div>
+                </div>
+                {% endfor %}
 
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product18.jpg') }}" alt="Product 18">
-                <h3>Product No.18</h3>
-                <p>₹ 1500.00</p>
-               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.18', 1500, 'Imgs_Boutique/Product18.jpg')">Add to Wishlist</button>
-               <button class="cart-btn" onclick="addTo('cart', 'Product No.18', 1500, 'Imgs_Boutique/Product18.jpg')">Add to Cart</button>
-            </div>
+            {% else %}
+                <!-- Shown when no products exist in database yet -->
+                <p style="text-align:center; color:#aaa; padding:40px;">
+                    New arrivals coming soon!
+                </p>
+            {% endif %}
 
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product19.jpg') }}" alt="Product 19">
-                <h3>Product No.19</h3>
-                <p>₹ 1500.00</p>
-               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.19', 1500, 'Imgs_Boutique/Product19.jpg')">Add to Wishlist</button>
-               <button class="cart-btn" onclick="addTo('cart', 'Product No.19', 1500, 'Imgs_Boutique/Product19.jpg')">Add to Cart</button>
-            </div>
-
-            <div class="product-card">
-                <img src="{{ url_for('static', filename='Imgs_Boutique/Product20.jpg') }}" alt="Product 20">
-                <h3>Product No.20</h3>
-                <p>₹ 1500.00</p>
-               <button class="wishlist-btn" onclick="addTo('wishlist', 'Product No.20', 1500, 'Imgs_Boutique/Product20.jpg')">Add to Wishlist</button>
-               <button class="cart-btn" onclick="addTo('cart', 'Product No.20', 1500, 'Imgs_Boutique/Product20.jpg')">Add to Cart</button>
-            </div>
         </div>
     </div>
 </section>
 
-    <h2>reviews</h2>
-<div class="review-container">
-  <div class="review">⭐️⭐️⭐️⭐️⭐️<br>“Loved the fabric and the fit!”</div>
-  <div class="review">⭐️⭐️⭐️⭐️<br>“Quick delivery & beautiful design.”</div>
-  <div class="review">⭐️⭐️⭐️⭐️⭐️<br>“Excellent service. Will order again.”</div>
-  <div class="review">⭐️⭐️⭐️<br>“Nice product but delivery was slow.”</div>
-  <div class="review">⭐️⭐️⭐️⭐️⭐️<br>“Loved the fabric and the fit!”</div>
-  <div class="review">⭐️⭐️⭐️⭐️<br>“Quick delivery & beautiful design.”</div>
-</div>
+<!-- ═══════════════════════════════════════
+     REVIEWS SECTION
+     Static reviews for now — can be made
+     dynamic (from DB) in a later day
+═══════════════════════════════════════ -->
+<section>
+    <h2>Customer Reviews</h2>
+    <div class="review-container">
+        <div class="review">⭐️⭐️⭐️⭐️⭐️<br>"Loved the fabric and the fit!"</div>
+        <div class="review">⭐️⭐️⭐️⭐️<br>"Quick delivery & beautiful design."</div>
+        <div class="review">⭐️⭐️⭐️⭐️⭐️<br>"Excellent service. Will order again."</div>
+        <div class="review">⭐️⭐️⭐️<br>"Nice product but delivery was slow."</div>
+        <div class="review">⭐️⭐️⭐️⭐️⭐️<br>"Loved the fabric and the fit!"</div>
+        <div class="review">⭐️⭐️⭐️⭐️<br>"Quick delivery & beautiful design."</div>
+    </div>
+</section>
 
+<!-- ═══════════════════════════════════════
+     FEATURES SECTION
+     Highlights what makes the boutique special
+     Good for client-facing trust building
+═══════════════════════════════════════ -->
+<section class="features">
+    <div class="feature-item">
+        <h2>Exclusive Designs</h2>
+        <p>Handcrafted pieces that you won't find anywhere else.</p>
+    </div>
+    <div class="feature-item">
+        <h2>Sustainable Fashion</h2>
+        <p>We care about the environment. All our materials are eco-friendly.</p>
+    </div>
+    <div class="feature-item">
+        <h2>Personalized Shopping</h2>
+        <p>Get styling advice and personalized recommendations.</p>
+    </div>
+</section>
 
-    <!-- Feature section to highlight unique selling points -->
-     <!-- <h5 class="ShopHere">Shop here for</h5> -->
-    <!-- <section class="features">
-        <div class="feature-item">
-            <h2>Exclusive Designs</h2>
-            <p>Handcrafted pieces that you won’t find anywhere else.</p>
-        </div>
+<!-- ═══════════════════════════════════════
+     FOOTER
+     Copyright + social media links
+     YouTube link is real — kept from original
+═══════════════════════════════════════ -->
+<footer>
+    <p>&copy; 2026 Elshaddai Boutique | Follow us on
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="https://www.youtube.com/@el-shaddaiboutiqe4989">YouTube</a>
+    </p>
+</footer>
 
-        <div class="feature-item">
-            <h2>Sustainable Fashion</h2>
-            <p>We care about the environment. All our materials are eco-friendly.</p>
-        </div>
-
-        <div class="feature-item">
-            <h2>Personalized Shopping</h2>
-            <p>Get styling advice and personalized recommendations.</p>
-        </div>
-    </section> -->
-
-    <!-- Footer section with social media links -->
-    <footer>
-        <p>&copy; 2026 Elshaddai Boutique | Follow us on
-            <a href="#">Instagram</a>
-            <a href="#">Facebook</a>
-            <a href="https://www.youtube.com/@el-shaddaiboutiqe4989">YouTube</a>
-        </p>
-    </footer>
-</body>
-</html>
-  
 {% endblock %}

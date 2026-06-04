@@ -1,3 +1,14 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show mt-2">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -139,7 +150,7 @@
 </head>
 <body>
 
-  <!-- Sidebar -->
+  <!-- Sidebar --> 
   <div class="sidebar">
     <h2>Boutique Admin</h2>
     <a href="/admin">Dashboard</a>
@@ -207,11 +218,20 @@
                 <td><span class="badge-category">{{ product[2] }}</span></td>
                 <td>₹{{ "%.2f"|format(product[3]) }}</td>
                 <td>{{ product[4] }}</td>
+
                 <td>
                   <a href="/admin/products/edit/{{ product[0] }}" class="btn-edit">Edit</a>
-                  <form method="POST" action="/admin/products/delete/{{ product[0] }}" style="display:inline;">
+                  <!-- <form method="POST" action="/admin/products/delete/{{ product[0] }}" style="display:inline;">
                     <button type="submit" class="btn-delete"
                       onclick="return confirm('Delete this product?')">Delete</button>
+                  </form> -->
+                  <!-- Replace your current delete form with this -->
+                  <form method="POST" 
+                  action="/admin/products/delete/{{ product[0] }}" 
+                  style="display:inline;"
+                  onsubmit="return confirm('Delete \'{{ product[1] }}\'? This cannot be undone.');">
+                  
+                  <button type="submit" class="btn-delete">Delete</button>
                   </form>
                 </td>
               </tr>

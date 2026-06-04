@@ -1,0 +1,129 @@
+{% extends "admin/dashboard.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+
+  <!-- Page header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">✏️ Edit Product</h2>
+    <a href="/admin/products" class="btn btn-outline-secondary">← Back to Products</a>
+  </div>
+
+  <!-- Flash messages (success / error banners) -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+
+      <!--
+        enctype="multipart/form-data" is REQUIRED whenever your form
+        includes a file upload input. Without it, the image never reaches Flask.
+      -->
+      <form method="POST" enctype="multipart/form-data">
+
+        <!-- Product Name -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Product Name *</label>
+          <input
+            type="text"
+            name="name"
+            class="form-control"
+            value="{{ product.name }}"
+            required
+          >
+          <!-- product.name comes from the dictionary returned by cursor.fetchone() -->
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Description</label>
+          <textarea name="description" class="form-control" rows="3">{{ product.description }}</textarea>
+        </div>
+
+        <!-- Category -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Category</label>
+          <select name="category" class="form-select">
+            <!--
+              selected="{{ 'selected' if product.category == 'X' }}" pre-selects
+              the option that matches what's already saved in the database.
+            -->
+            <option value="Skincare"   {{ 'selected' if product.category == 'Skincare' }}>Skincare</option>
+            <option value="Makeup"     {{ 'selected' if product.category == 'Makeup' }}>Makeup</option>
+            <option value="Haircare"   {{ 'selected' if product.category == 'Haircare' }}>Haircare</option>
+            <option value="Fragrance"  {{ 'selected' if product.category == 'Fragrance' }}>Fragrance</option>
+            <option value="Accessories"{{ 'selected' if product.category == 'Accessories' }}>Accessories</option>
+          </select>
+        </div>
+
+        <!-- Price and Stock side by side -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Price (₹) *</label>
+            <input
+              type="number"
+              name="price"
+              class="form-control"
+              step="0.01"
+              min="0"
+              value="{{ product.price }}"
+              required
+            >
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Stock Quantity *</label>
+            <input
+              type="number"
+              name="stock"
+              class="form-control"
+              min="0"
+              value="{{ product.stock }}"
+              required
+            >
+          </div>
+        </div>
+
+        <!-- Current image preview + option to replace -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Product Image</label>
+
+          <!-- Show current image so admin knows what's saved -->
+          {% if product.image %}
+            <div class="mb-2">
+              <p class="text-muted small mb-1">Current image:</p>
+              <img
+                src="/static/uploads/{{ product.image }}"
+                alt="{{ product.name }}"
+                style="height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #dee2e6;"
+              >
+            </div>
+          {% endif %}
+
+          <input type="file" name="image" class="form-control" accept="image/*">
+          <div class="form-text">Leave blank to keep the current image.</div>
+        </div>
+
+        <!-- Submit button -->
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary px-4">
+            💾 Save Changes
+          </button>
+          <a href="/admin/products" class="btn btn-outline-secondary">
+            Cancel
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

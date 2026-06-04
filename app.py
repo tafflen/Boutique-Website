@@ -311,6 +311,170 @@ def add_product():
 
     return render_template("admin/add_product.html")
 
+
+# ─────────────────────────────────────────────
+# EDIT PRODUCT  — GET: show form  |  POST: save changes
+# ─────────────────────────────────────────────
+@app.route("/admin/products/edit/<int:product_id>", methods=["GET", "POST"])
+def edit_product(product_id):
+    # Block non-admins immediately
+    if session.get("is_admin") != 1:
+        return redirect("/login")
+
+    db = get_db()
+    cursor = db.cursor(dictionary=True)  # dictionary=True → rows come back as dicts
+
+    if request.method == "POST":
+        # ── Collect form values ──────────────────────────────────────────
+        name        = request.form.get("name", "").strip()
+        description = request.form.get("description", "").strip()
+        category    = request.form.get("category", "").strip()
+        price       = request.form.get("price", "0").strip()
+        stock       = request.form.get("stock", "0").strip()
+
+        # ── Basic validation ─────────────────────────────────────────────
+        if not name or not price or not stock:
+            flash("Name, price, and stock are required.", "danger")
+            return redirect(f"/admin/products/edit/{product_id}")
+
+        # ── Check if a NEW image was uploaded ────────────────────────────
+        file = request.files.get("image")          # None if no file chosen
+        new_filename = None                        # We'll fill this if needed
+
+        if file and file.filename != "":           # User selected a new image
+            if allowed_file(file.filename):
+                new_filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config["UPLOAD_FOLDER"], new_filename))
+            else:
+                flash("Invalid image type. Use PNG, JPG, GIF, or WEBP.", "danger")
+                return redirect(f"/admin/products/edit/{product_id}")
+
+        # ── Build the SQL query based on whether image was changed ────────
+        if new_filename:
+            # Image WAS changed → update everything including image column
+            sql = """
+                UPDATE products
+                SET name=%s, description=%s, category=%s,
+                    price=%s, stock=%s, image=%s
+                WHERE id=%s
+            """
+            values = (name, description, category, price, stock,
+                      new_filename, product_id)
+        else:
+            # Image was NOT changed → update everything EXCEPT image column
+            sql = """
+                UPDATE products
+                SET name=%s, description=%s, category=%s,
+                    price=%s, stock=%s
+                WHERE id=%s
+            """
+            values = (name, description, category, price, stock, product_id)
+
+        cursor.execute(sql, values)
+        db.commit()                                # Save changes to database
+
+        flash("Product updated successfully!", "success")
+        return redirect("/admin/products")         # Back to product list
+
+    # ── GET request: load existing product data into the form ────────────
+    cursor.execute("SELECT * FROM products WHERE id = %s", (product_id,))
+    product = cursor.fetchone()                    # One row as a dictionary
+
+    if not product:                                # Safety: ID doesn't exist
+        flash("Product not found.", "danger")
+        return redirect("/admin/products")
+
+    return render_template("admin/edit_product.html", product=product)
+
+
+# ─────────────────────────────────────────────
+# DELETE PRODUCT  — POST only (never allow GET deletes)
+# ─────────────────────────────────────────────
+@app.route("/admin/products/delete/<int:product_id>", methods=["POST"])
+def delete_product(product_id):
+    # Block non-admins immediately
+    if session.get("is_admin") != 1:
+        return redirect("/login")
+
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute("DELETE FROM products WHERE id = %s", (product_id,))
+    db.commit()
+
+    flash("Product deleted.", "warning")
+    return redirect("/admin/products")
+
+
+# ─────────────────────────────────────────
+# SHOP PAGE — customer facing
+# Shows all products from database
+# ─────────────────────────────────────────
+@app.route("/shop")
+def shop():
+    db = get_db()
+    cursor = db.cursor(buffered=True)
+
+    # Check if a category filter was passed in the URL
+    # /shop?category=Sarees → category = "Sarees"
+    # /shop → category = None
+    category = request.args.get("category")
+
+    if category:
+        # Filter by specific category
+        cursor.execute("""
+            SELECT id, name, category, price, stock, image, description
+            FROM products
+            WHERE category = %s
+            ORDER BY created_at DESC
+        """, (category,))
+    else:
+        # No filter → show all products
+        cursor.execute("""
+            SELECT id, name, category, price, stock, image, description
+            FROM products
+            ORDER BY created_at DESC
+        """)
+    # ORDER BY created_at DESC → newest products appear first
+    products = cursor.fetchall()
+
+    cursor.close()
+    db.close()
+
+    return render_template("shop.html", products=products, selected_category=category)
+
+
+# ─────────────────────────────────────────
+# PRODUCT DETAIL PAGE
+# Shows full info of one specific product
+# ─────────────────────────────────────────
+@app.route("/product/<int:product_id>")
+def product_detail(product_id):
+    # <int:product_id> → Flask converts the URL number to an integer
+    # /product/3 → product_id = 3
+
+    db = get_db()
+    cursor = db.cursor(buffered=True)
+
+    cursor.execute("""
+        SELECT id, name, category, price, stock, image, description
+        FROM products
+        WHERE id = %s
+    """, (product_id,))
+    # (product_id,) → tuple with one value — comma is required!
+
+    product = cursor.fetchone()
+    cursor.close()
+    db.close()
+
+    # If product doesn't exist → show 404 page
+    if not product:
+        flash("Product not found.", "error")
+        return redirect("/shop")
+
+    return render_template("product_detail.html", product=product)
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
