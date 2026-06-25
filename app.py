@@ -683,16 +683,31 @@ def cart():
         item_count = item_count
     )
 
-    @app.route("/clear-cart", methods=["POST"])
-    def clear_cart():
-        """
-        Wipes the entire cart in one click.
-        Used by 'Empty Cart' button on cart page.
-        """
-        session.pop("cart", None)   # safely removes cart key; no error if missing
-        session.modified = True
-        flash("Your cart has been cleared.", "info")
-        return redirect(url_for("cart"))
+# TEMPORARY DEBUG ROUTE — paste this in app.py, remove after fixing
+@app.route("/debug-cart")
+def debug_cart():
+    # This shows you EXACTLY what's in the session right now
+    # If cart is empty here, session is not saving at all
+    # If cart has items here, the problem is in cart.html display
+    import json
+    return f"""
+    <h2>Session Debug</h2>
+    <p><b>Session cart:</b> {session.get('cart', 'EMPTY — nothing saved')}</p>
+    <p><b>Session keys:</b> {list(session.keys())}</p>
+    <p><b>Secret key set:</b> {bool(app.secret_key)}</p>
+    <pre>{json.dumps(session.get('cart', {}), indent=2)}</pre>
+    """
+
+@app.route("/clear-cart", methods=["POST"])
+def clear_cart():
+    """
+    Wipes the entire cart in one click.
+    Used by 'Empty Cart' button on cart page.
+    """
+    session.pop("cart", None)   # safely removes cart key; no error if missing
+    session.modified = True
+    flash("Your cart has been cleared.", "info")
+    return redirect(url_for("cart"))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
