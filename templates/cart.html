@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart | Boutique</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #fafafa; color: #1a1a2e; }
+
+    .navbar {
+      background: #1a1a2e; padding: 16px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .navbar .brand { color: #e0aaff; font-size: 22px; font-weight: 700; text-decoration: none; }
+    .navbar a { color: #ccc; text-decoration: none; margin-left: 24px; font-size: 14px; }
+    .navbar a:hover { color: white; }
+
+    .page-header {
+      max-width: 1000px; margin: 40px auto 24px; padding: 0 40px;
+      font-size: 26px; font-weight: 700;
+    }
+
+    .cart-container {
+      max-width: 1000px; margin: 0 auto; padding: 0 40px 80px;
+      display: grid; grid-template-columns: 1fr 320px; gap: 32px; align-items: start;
+    }
+
+    /* ── Cart Items ── */
+    .cart-items { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 80px 1fr auto auto;
+      gap: 16px; align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid #f5f5f5;
+    }
+
+    .cart-item:last-child { border-bottom: none; }
+
+    .cart-item img {
+      width: 80px; height: 80px; object-fit: cover; border-radius: 10px;
+    }
+
+    .item-placeholder {
+      width: 80px; height: 80px; background: #f0eeff;
+      border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 28px;
+    }
+
+    .item-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .item-price { font-size: 13px; color: #888; }
+
+    /* Quantity control */
+    .qty-form { display: flex; align-items: center; gap: 8px; }
+    .qty-input {
+      width: 56px; text-align: center; padding: 6px;
+      border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px;
+    }
+    .qty-btn {
+      background: none; border: 1px solid #e0e0e0; border-radius: 6px;
+      width: 30px; height: 30px; cursor: pointer; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .qty-btn:hover { background: #f5f5f5; }
+
+    .item-subtotal { font-weight: 700; font-size: 15px; min-width: 80px; text-align: right; }
+
+    .btn-remove {
+      background: none; border: none; color: #ccc;
+      font-size: 18px; cursor: pointer; padding: 4px 8px;
+    }
+    .btn-remove:hover { color: #e53935; }
+
+    /* ── Order Summary ── */
+    .order-summary {
+      background: white; border-radius: 16px;
+      padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      position: sticky; top: 24px;
+    }
+
+    .summary-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+
+    .summary-row {
+      display: flex; justify-content: space-between;
+      font-size: 14px; color: #555; margin-bottom: 12px;
+    }
+
+    .summary-total {
+      display: flex; justify-content: space-between;
+      font-size: 18px; font-weight: 700;
+      border-top: 1px solid #f0f0f0; padding-top: 16px; margin-top: 8px;
+    }
+
+    .btn-checkout {
+      display: block; width: 100%; padding: 14px;
+      background: #1a1a2e; color: white; border: none;
+      border-radius: 10px; font-size: 16px; font-weight: 600;
+      cursor: pointer; text-align: center; text-decoration: none;
+      margin-top: 20px; transition: background .2s;
+    }
+    .btn-checkout:hover { background: #2d2d4e; color: white; }
+
+    .btn-continue {
+      display: block; text-align: center; color: #6c4fcf;
+      font-size: 14px; text-decoration: none; margin-top: 12px;
+    }
+    .btn-continue:hover { text-decoration: underline; }
+
+    /* ── Empty cart ── */
+    .empty-cart {
+      text-align: center; padding: 80px 40px;
+      background: white; border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .empty-cart .icon { font-size: 60px; margin-bottom: 20px; }
+    .empty-cart h3 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+    .empty-cart p { color: #888; margin-bottom: 24px; }
+    .btn-shop {
+      display: inline-block; padding: 12px 32px;
+      background: #1a1a2e; color: white; border-radius: 10px;
+      text-decoration: none; font-weight: 600;
+    }
+
+    .footer { background: #1a1a2e; color: #888; text-align: center; padding: 30px; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a href="/" class="brand">Boutique</a>
+  <div>
+    <a href="/">Home</a>
+    <a href="/shop">Shop</a>
+    <a href="/about">About</a>
+    <a href="/contactBoutique">Contact</a>
+    <a href="/cart" style="position:relative;">
+      🛒 Cart
+      {% set cart_count = session.get("cart", {})|length %}
+      {% if cart_count > 0 %}
+        <span style="background:#e0aaff;color:#1a1a2e;font-size:10px;font-weight:700;
+                     padding:2px 6px;border-radius:10px;position:absolute;top:-8px;right:-12px;">
+          {{ cart_count }}
+        </span>
+      {% endif %}
+    </a>
+    {% if session.get("is_admin") == 1 %}<a href="/admin">Dashboard</a>{% endif %}
+    {% if session.get("user") %}
+      <a href="/logout">Logout</a>
+    {% else %}
+      <a href="/login">Login</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div style="max-width:1000px; margin:20px auto; padding:0 40px;">
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show">
+          {{ msg }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="page-header">🛒 Your Cart</div>
+
+{% if cart %}
+<div class="cart-container">
+
+  <!-- LEFT: Cart items -->
+  <div class="cart-items">
+    {% for pid, item in cart.items() %}
+    <div class="cart-item">
+
+      <!-- Image -->
+      {% if item.image %}
+        <img src="{{ url_for('static', filename='uploads/' + item.image) }}"
+             alt="{{ item.name }}">
+      {% else %}
+        <div class="item-placeholder">🛍️</div>
+      {% endif %}
+
+      <!-- Name + unit price -->
+      <div>
+        <div class="item-name">{{ item.name }}</div>
+        <div class="item-price">₹{{ "%.2f"|format(item.price) }} each</div>
+      </div>
+
+      <!-- Quantity updater -->
+      <form method="POST" action="/cart/update/{{ pid }}" class="qty-form">
+        <button type="submit" name="qty" value="{{ item.qty - 1 }}" class="qty-btn">−</button>
+        <input type="number" name="qty" value="{{ item.qty }}" min="0" max="99"
+               class="qty-input" onchange="this.form.submit()">
+        <button type="submit" name="qty" value="{{ item.qty + 1 }}" class="qty-btn">+</button>
+      </form>
+
+      <!-- Subtotal -->
+      <div class="item-subtotal">₹{{ "%.2f"|format(item.price * item.qty) }}</div>
+
+      <!-- Remove button -->
+      <form method="POST" action="/cart/remove/{{ pid }}">
+        <button type="submit" class="btn-remove" title="Remove">✕</button>
+      </form>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- RIGHT: Order summary -->
+  <div class="order-summary">
+    <div class="summary-title">Order Summary</div>
+
+    {% for pid, item in cart.items() %}
+    <div class="summary-row">
+      <span>{{ item.name | truncate(22) }} × {{ item.qty }}</span>
+      <span>₹{{ "%.2f"|format(item.price * item.qty) }}</span>
+    </div>
+    {% endfor %}
+
+    <div class="summary-total">
+      <span>Total</span>
+      <span>₹{{ "%.2f"|format(total) }}</span>
+    </div>
+
+    <!-- Checkout → wired up Day 17 -->
+    <a href="/checkout" class="btn-checkout">Proceed to Checkout →</a>
+    <a href="/shop" class="btn-continue">← Continue Shopping</a>
+  </div>
+
+</div>
+
+{% else %}
+<!-- Empty cart state -->
+<div style="max-width:1000px; margin:0 auto; padding:0 40px 80px;">
+  <div class="empty-cart">
+    <div class="icon">🛍️</div>
+    <h3>Your cart is empty</h3>
+    <p>Looks like you haven't added anything yet.</p>
+    <a href="/shop" class="btn-shop">Browse Products</a>
+  </div>
+</div>
+{% endif %}
+
+<div class="footer">© 2026 Boutique. All rights reserved.</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

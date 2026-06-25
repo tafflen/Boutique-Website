@@ -307,44 +307,79 @@
     <div class="product-grid">
 
       {% if products %}
-        {% for product in products %}
-        <a href="/product/{{ product[0] }}" class="product-card">
+  {% for product in products %}
 
-          <!-- Product Image -->
-          {% if product[5] %}
-            <img class="product-image"
-                 src="{{ url_for('static', filename='uploads/' + product[5]) }}"
-                 alt="{{ product[1] }}">
-          {% else %}
-            <div class="product-image-placeholder">🛍️</div>
-          {% endif %}
+  <div class="product-card">
 
-          <!-- Product Info -->
-          <div class="product-info">
-            <div class="product-category">{{ product[2] }}</div>
-            <div class="product-name">{{ product[1] }}</div>
-
-            <div class="product-footer">
-              <div class="product-price">₹{{ "%.2f"|format(product[3]) }}</div>
-              {% if product[4] > 0 %}
-                <span class="badge-stock in-stock">In Stock</span>
-              {% else %}
-                <span class="badge-stock out-of-stock">Out of Stock</span>
-              {% endif %}
-            </div>
-
-            <a href="/product/{{ product[0] }}" class="btn-view">View Product</a>
-          </div>
-
-        </a>
-        {% endfor %}
-
+    <!-- Clicking the image goes to product detail -->
+    <a href="/product/{{ product[0] }}?category={{ request.args.get('category', '') }}">
+      {% if product[5] %}
+        <img class="product-image"
+             src="{{ url_for('static', filename='uploads/' + product[5]) }}"
+             alt="{{ product[1] }}">
       {% else %}
-        <div class="empty-state">
-          <h2>No products yet</h2>
-          <p>Check back soon — new arrivals coming!</p>
-        </div>
+        <div class="product-image-placeholder">🛍️</div>
       {% endif %}
+    </a>
+
+    <!-- Product Info -->
+    <div class="product-info">
+      <div class="product-category">{{ product[2] }}</div>
+      <div class="product-name">{{ product[1] }}</div>
+
+      <div class="product-footer">
+        <div class="product-price">₹{{ "%.2f"|format(product[3]) }}</div>
+        {% if product[4] > 5 %}
+          <span class="badge-stock in-stock">In Stock</span>
+        {% elif product[4] > 0 %}
+          <span class="badge-stock" style="background:#fff8e1;color:#f57f17;">
+            Only {{ product[4] }} left
+          </span>
+        {% else %}
+          <span class="badge-stock out-of-stock">Out of Stock</span>
+        {% endif %}
+      </div>
+
+      <a href="/product/{{ product[0] }}" class="btn-view">View Product</a>
+
+      <!-- Add to Cart form — only shown when in stock -->
+      {% if product[4] > 0 %}
+      <form action="/add-to-cart" method="POST" style="margin-top:10px; display:flex; gap:6px;">
+        <input type="hidden" name="product_id" value="{{ product[0] }}">
+        <input
+          type="number"
+          name="quantity"
+          value="1"
+          min="1"
+          max="{{ product[4] }}"
+          style="width:58px; padding:8px 6px; border:1px solid #e0e0e0; border-radius:8px; font-size:14px; text-align:center;"
+        >
+        <button
+          type="submit"
+          style="flex:1; padding:10px; background:#6c4fcf; color:white; border:none; border-radius:8px; font-size:14px; cursor:pointer; transition:background .2s;"
+          onmouseover="this.style.background='#5a3db8'"
+          onmouseout="this.style.background='#6c4fcf'"
+        >
+          🛒 Add to Cart
+        </button>
+      </form>
+      {% else %}
+      <button disabled style="width:100%; margin-top:10px; padding:10px; background:#f0f0f0; color:#aaa; border:none; border-radius:8px; font-size:14px;">
+        Out of Stock
+      </button>
+      {% endif %}
+
+    </div><!-- /product-info -->
+  </div><!-- /product-card -->
+
+  {% endfor %}
+
+{% else %}
+  <div class="empty-state">
+    <h2>No products yet</h2>
+    <p>Check back soon — new arrivals coming!</p>
+  </div>
+{% endif %}
 
     </div>
   </div>

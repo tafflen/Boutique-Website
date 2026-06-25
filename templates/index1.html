@@ -12,6 +12,23 @@
     <p>Discover unique fashion that speaks your style.</p>
     <!-- Clicking this takes customer to /shop page -->
     <a href="/shop" class="cta-button">Shop Now</a>
+    <a href="/cart" style="position:relative;">
+        🛒 Cart
+        {% set cart_count = session.get("cart", {})|length %}
+        {% if cart_count > 0 %}
+          <span style="
+            background:#e0aaff;
+            color:#1a1a2e;
+            font-size:10px;
+            font-weight:700;
+            padding:2px 6px;
+            border-radius:10px;
+            position:absolute;
+            top:-8px;
+            right:-12px;
+          ">{{ cart_count }}</span>
+        {% endif %}
+      </a>
 </section>
 
 <!-- ═══════════════════════════════════════

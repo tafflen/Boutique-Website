@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, flash, session
+from flask import Flask, render_template, request, redirect, flash, session, url_for
 import mysql.connector
 import bcrypt
 import os
@@ -454,7 +454,7 @@ def product_detail(product_id):
     # /product/3 → product_id = 3
 
     db = get_db()
-    cursor = db.cursor(buffered=True)
+    cursor = db.cursor(dictionary=True)
 
     cursor.execute("""
         SELECT id, name, category, price, stock, image, description
@@ -464,16 +464,235 @@ def product_detail(product_id):
     # (product_id,) → tuple with one value — comma is required!
 
     product = cursor.fetchone()
-    cursor.close()
-    db.close()
+    # cursor.close()
+    # db.close()
 
     # If product doesn't exist → show 404 page
     if not product:
         flash("Product not found.", "error")
         return redirect("/shop")
 
-    return render_template("product_detail.html", product=product)
+    cursor.execute("""SELECT id, name, price, image FROM products 
+      WHERE category = %s
+      AND id != %s
+      ORDER BY created_at DESC
+      LIMIT 4""", (product["category"], product_id))
+    related = cursor.fetchall()
 
+    cursor.close()
+    db.close()
+    category = request.args.get("category", "")
+
+    return render_template("product_detail.html", product=product, related=related, category=category)
+
+# ─────────────────────────────────────────
+# CART — session based
+# cart structure stored in session:
+# session["cart"] = {
+#   "3": {"name": "Glow Serum", "price": 499.0, "qty": 2, "image": "glow.jpg"},
+#   "7": {"name": "Rose Toner", "price": 299.0, "qty": 1, "image": "toner.jpg"}
+# }
+# Key is product_id as STRING (session keys must be strings)
+# ─────────────────────────────────────────
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CART ROUTES  
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route("/add-to-cart", methods=["POST"])
+def add_to_cart():
+    """
+    Handles adding a product to the session cart.
+    Accepts POST data: product_id, quantity (optional, defaults to 1)
+    Works from BOTH shop.html and product_detail.html
+    """
+
+    # ----- 1. Read form data -----
+    # request.form is a dict-like object containing all POST fields
+    product_id = request.form.get("product_id")      # comes as a string from HTML
+    # int() converts "2" → 2; we default to 1 if qty field is missing
+    quantity   = int(request.form.get("quantity", 1))
+
+    # ----- 2. Validate product_id -----
+    if not product_id:
+        # Someone called this URL without a product_id — ignore
+        flash("Invalid product.", "danger")
+        return redirect(url_for("shop"))
+
+    # ----- 3. Fetch product from DB -----
+    # We need name, price, image to store in the cart dict
+    db = get_db()
+    cursor = db.cursor(dictionary=True)   # returns rows as dicts
+    cursor.execute(
+        "SELECT id, name, price, stock, image FROM products WHERE id = %s",
+        (product_id,)                     # always use parameterized queries!
+    )
+    product = cursor.fetchone()           # returns None if not found
+    cursor.close()
+    db.close()
+
+    if not product:
+        flash("Product not found.", "danger")
+        return redirect(url_for("shop"))
+
+    # ----- 4. Check stock -----
+    if product["stock"] < 1:
+        flash(f"Sorry, {product['name']} is out of stock.", "warning")
+        return redirect(request.referrer or url_for("shop"))
+        # request.referrer = the URL the user came FROM (shop page or detail page)
+        # fallback to shop if referrer is None
+
+    # ----- 5. Initialize cart if it doesn't exist yet -----
+    if "cart" not in session:
+        session["cart"] = {}
+        # session is a dict managed by Flask; it persists across requests
+        # for the same browser session via a signed cookie
+
+    # ----- 6. str(product_id) — critical! -----
+    # JSON (used internally by Flask sessions) only allows string keys
+    pid = str(product["id"])
+
+    # ----- 7. Add or update quantity -----
+    if pid in session["cart"]:
+        # Product already in cart → just increase quantity
+        new_qty = session["cart"][pid]["qty"] + quantity
+
+        # Don't let quantity exceed stock
+        if new_qty > product["stock"]:
+            new_qty = product["stock"]
+            flash(f"Only {product['stock']} units available. Quantity capped.", "warning")
+        
+        session["cart"][pid]["qty"] = new_qty
+    else:
+        # New product → add it with all required fields
+        session["cart"][pid] = {
+            "name"  : product["name"],
+            "price" : float(product["price"]),  # store as float for math later
+            "qty"   : quantity,
+            "image" : product["image"] or "default.jpg"  # fallback image
+        }
+
+    # ----- 8. IMPORTANT: tell Flask the session was modified -----
+    # Flask only saves the session to cookie if it detects a change.
+    # Modifying a nested dict (session["cart"][pid]["qty"]) does NOT
+    # automatically trigger save — you must set this flag manually.
+    session.modified = True
+
+    flash(f"'{product['name']}' added to cart!", "success")
+
+    # ----- 9. POST-Redirect-GET: redirect back to where user came from -----
+    return redirect(request.referrer or url_for("shop"))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route("/update-cart", methods=["POST"])
+def update_cart():
+    """
+    Updates the quantity of an existing cart item.
+    Called from the cart page via a small form next to each item.
+    """
+    product_id = str(request.form.get("product_id", ""))
+    # int() with a try/except handles bad input like "abc"
+    try:
+        new_qty = int(request.form.get("quantity", 1))
+    except ValueError:
+        flash("Invalid quantity.", "danger")
+        return redirect(url_for("cart"))
+
+    # Ignore if cart doesn't exist or product not in cart
+    if "cart" not in session or product_id not in session["cart"]:
+        flash("Item not found in cart.", "warning")
+        return redirect(url_for("cart"))
+
+    if new_qty < 1:
+        # If qty goes to 0 or below, treat it as a remove
+        session["cart"].pop(product_id)
+        flash("Item removed from cart.", "info")
+    else:
+        # Optional: validate against stock
+        db = get_db()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT stock FROM products WHERE id = %s", (product_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        db.close()
+
+        if row and new_qty > row["stock"]:
+            new_qty = row["stock"]
+            flash(f"Quantity capped at available stock ({row['stock']}).", "warning")
+
+        session["cart"][product_id]["qty"] = new_qty
+        flash("Cart updated.", "success")
+
+    session.modified = True  # never forget this!
+    return redirect(url_for("cart"))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route("/remove-from-cart", methods=["POST"])
+def remove_from_cart():
+    """
+    Removes a single item from the cart completely.
+    """
+    product_id = str(request.form.get("product_id", ""))
+
+    if "cart" in session and product_id in session["cart"]:
+        item_name = session["cart"][product_id]["name"]   # save name before deleting
+        session["cart"].pop(product_id)                   # dict.pop() removes the key
+        session.modified = True
+        flash(f"'{item_name}' removed from cart.", "info")
+    else:
+        flash("Item not found in cart.", "warning")
+
+    return redirect(url_for("cart"))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route("/cart")
+def cart():
+    """
+    Displays the cart page.
+    Calculates subtotal, tax, and total server-side for accuracy.
+    """
+    cart_items = session.get("cart", {})
+    # cart_items is a dict: { "3": {"name": ..., "price": ..., "qty": ..., "image": ...} }
+
+    # Calculate totals here in Python (not JavaScript) so they're trustworthy
+    subtotal = sum(
+        item["price"] * item["qty"]
+        for item in cart_items.values()   # .values() gives us each item dict
+    )
+
+    # Simple tax calculation (18% GST — adjust for your region)
+    tax_rate = 0.18
+    tax      = round(subtotal * tax_rate, 2)
+    total    = round(subtotal + tax, 2)
+
+    # item_count used for the navbar badge
+    item_count = sum(item["qty"] for item in cart_items.values())
+
+    return render_template(
+        "cart.html",
+        cart_items = cart_items,
+        subtotal   = round(subtotal, 2),
+        tax        = tax,
+        total      = total,
+        item_count = item_count
+    )
+
+    @app.route("/clear-cart", methods=["POST"])
+    def clear_cart():
+        """
+        Wipes the entire cart in one click.
+        Used by 'Empty Cart' button on cart page.
+        """
+        session.pop("cart", None)   # safely removes cart key; no error if missing
+        session.modified = True
+        flash("Your cart has been cleared.", "info")
+        return redirect(url_for("cart"))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

@@ -202,6 +202,23 @@
     <div>
       <a href="/">Home</a>
       <a href="/shop">Shop</a>
+      <a href="/cart" style="position:relative;">
+        🛒 Cart
+        {% set cart_count = session.get("cart", {})|length %}
+        {% if cart_count > 0 %}
+          <span style="
+            background:#e0aaff;
+            color:#1a1a2e;
+            font-size:10px;
+            font-weight:700;
+            padding:2px 6px;
+            border-radius:10px;
+            position:absolute;
+            top:-8px;
+            right:-12px;
+          ">{{ cart_count }}</span>
+        {% endif %}
+      </a>
       <a href="/about">About</a>
       <a href="/contactBoutique">Contact</a>
       {% if session.get("is_admin") == 1 %}
@@ -218,7 +235,7 @@
   <!-- Breadcrumb -->
   <div class="breadcrumb-bar">
     <a href="/">Home</a> →
-    <a href="/shop">Shop</a> →
+    <a href="/shop?category={{ product[2] }}">{{ product[2] }}</a> →
     {{ product[1] }}
   </div>
 
@@ -242,10 +259,14 @@
       <div class="product-title">{{ product[1] }}</div>
       <div class="product-price-large">₹{{ "%.2f"|format(product[3]) }}</div>
 
-      {% if product[4] > 0 %}
-        <span class="stock-badge in-stock">✓ In Stock ({{ product[4] }} available)</span>
-      {% else %}
+      {% if product[4] == 0 %}
         <span class="stock-badge out-of-stock">✕ Out of Stock</span>
+      {% elif product[4] <= 5 %}
+        <span class="stock-badge" style="background:#fff8e1; color:#e65100;">
+          ⚠️ Low Stock — only {{ product[4] }} left
+      </span>
+      {% else %}
+        <span class="stock-badge in-stock">✓ In Stock</span>
       {% endif %}
 
       <hr class="divider">
@@ -257,7 +278,9 @@
 
       <!-- Add to Cart — wired up in Day 15 -->
       {% if product[4] > 0 %}
-        <a href="#" class="btn-cart">Add to Cart</a>
+         <form method="POST" action="/cart/add/{{ product[0] }}">
+          <button type="submit" class="btn-cart">🛒 Add to Cart</button>
+        </form>
       {% else %}
         <a href="#" class="btn-cart disabled">Out of Stock</a>
       {% endif %}
@@ -266,10 +289,38 @@
 
     </div>
   </div>
+  <!-- Related Products -->
+  {% if related %}
+  <div style="max-width:1100px; margin: 0 auto 60px; padding: 0 40px;">
+    <h4 style="font-weight:700; margin-bottom:24px;">You Might Also Like</h4>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:24px;">
+      
+      {% for item in related %}
+      <a href="/product/{{ item['id'] }}" style="text-decoration:none; color:inherit;">
+        <div style="border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.07); background:white;">
+          
+          {% if item['image'] %}
+            <img src="{{ url_for('static', filename='uploads/' + item['image']) }}"
+                 style="width:100%; height:180px; object-fit:cover;">
+          {% else %}
+            <div style="height:180px; background:#f0eeff; display:flex; align-items:center; justify-content:center; font-size:40px;">🛍️</div>
+          {% endif %}
+
+          <div style="padding:12px;">
+            <p style="font-weight:600; font-size:14px; margin-bottom:4px;">{{ item['name'] }}</p>
+            <p style="color:#6c4fcf; font-weight:700;">₹{{ "%.2f"|format(item['price']) }}</p>
+          </div>
+        </div>
+        
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Footer -->
   <div class="footer">
-    © 2024 Boutique. All rights reserved.
+    © 2026 Boutique. All rights reserved.
   </div>
 
 </body>
