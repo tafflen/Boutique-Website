@@ -709,6 +709,172 @@ def clear_cart():
     flash("Your cart has been cleared.", "info")
     return redirect(url_for("cart"))
 
+# ─────────────────────────────────────────────────────────────────────────────
+# CHECKOUT — GET: show form | POST: validate + save order
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route("/checkout", methods=["GET", "POST"])
+def checkout():
+    """
+    GET  → Show address form to the customer
+    POST → Validate inputs, save order to DB, clear cart, redirect to confirmation
+    """
+
+    # ── Must be logged in ─────────────────────────────────────────────
+    if not session.get("user"):
+        flash("Please login to place an order.", "error")
+        return redirect("/login")
+
+    # ── Cart must have items ──────────────────────────────────────────
+    cart_items = session.get("cart", {})
+    if not cart_items:
+        flash("Your cart is empty.", "warning")
+        return redirect("/shop")
+
+    # ── Calculate totals (same logic as cart route) ───────────────────
+    subtotal = sum(item["price"] * item["qty"] for item in cart_items.values())
+    tax      = round(subtotal * 0.18, 2)
+    total    = round(subtotal + tax, 2)
+
+    if request.method == "POST":
+
+        # ── Step 1: Read form fields ──────────────────────────────────
+        name    = request.form.get("name",    "").strip()
+        phone   = request.form.get("phone",   "").strip()
+        address = request.form.get("address", "").strip()
+        city    = request.form.get("city",    "").strip()
+        pincode = request.form.get("pincode", "").strip()
+
+        # ── Step 2: Validate every field ──────────────────────────────
+        errors = []
+
+        if not name:
+            errors.append("Full name is required.")
+
+        if not phone or not phone.isdigit() or len(phone) != 10:
+            errors.append("Enter a valid 10-digit phone number.")
+
+        if not address:
+            errors.append("Delivery address is required.")
+
+        if not city:
+            errors.append("City is required.")
+
+        if not pincode or not pincode.isdigit() or len(pincode) != 6:
+            errors.append("Enter a valid 6-digit pincode.")
+
+        # ── Step 3: If errors → show them, don't save anything ────────
+        if errors:
+            for e in errors:
+                flash(e, "error")
+            # Re-render form WITH totals so summary still shows
+            return render_template("checkout.html",
+                                   subtotal=subtotal, tax=tax, total=total)
+
+        # ── Step 4: Save order to DB ──────────────────────────────────
+        db     = get_db()
+        cursor = db.cursor()
+
+        # Insert one row into orders table
+        cursor.execute("""
+            INSERT INTO orders
+                (user, name, phone, address, city, pincode,
+                 subtotal, tax, total, payment_id, order_status)
+            VALUES
+                (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'paid')
+        """, (
+            session["user"],   # logged-in username
+            name,
+            phone,
+            address,
+            city,
+            pincode,
+            subtotal,
+            tax,
+            total,
+            "SIMULATED_PAYMENT"   # placeholder — real payment ID goes here later
+        ))
+
+        # cursor.lastrowid = the auto-generated id of the row just inserted
+        # We need this to link order_items to this specific order
+        order_db_id = cursor.lastrowid
+
+        # ── Step 5: Save each cart item into order_items ──────────────
+        # One row per product — this is how we remember what was ordered
+        for pid, item in cart_items.items():
+            cursor.execute("""
+                INSERT INTO order_items
+                    (order_id, product_id, product_name, quantity, price)
+                VALUES
+                    (%s, %s, %s, %s, %s)
+            """, (
+                order_db_id,    # links back to the orders row
+                int(pid),       # product id (convert from string key)
+                item["name"],   # snapshot of name at purchase time
+                item["qty"],
+                item["price"]   # snapshot of price at purchase time
+            ))
+
+        # db.commit() saves ALL the inserts above in one transaction
+        # If anything fails, nothing gets saved (atomicity)
+        db.commit()
+        cursor.close()
+        db.close()
+
+        # ── Step 6: Clear the cart from session ───────────────────────
+        session.pop("cart", None)
+        session.modified = True
+
+        flash("🎉 Order placed successfully!", "success")
+        return redirect(f"/order-confirmation/{order_db_id}")
+
+    # GET request → just show the empty form
+    return render_template("checkout.html",
+                           subtotal=subtotal, tax=tax, total=total)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ORDER CONFIRMATION
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route("/order-confirmation/<int:order_id>")
+def order_confirmation(order_id):
+    """
+    Shows thank-you page after successful order.
+    Fetches order + items from DB to display summary.
+    """
+
+    if not session.get("user"):
+        return redirect("/login")
+
+    db     = get_db()
+    cursor = db.cursor(dictionary=True)
+
+    # Fetch the order — also check it belongs to this user (security)
+    cursor.execute("""
+        SELECT * FROM orders
+        WHERE id = %s AND user = %s
+    """, (order_id, session["user"]))
+    order = cursor.fetchone()
+
+    if not order:
+        flash("Order not found.", "error")
+        return redirect("/shop")
+
+    # Fetch all items belonging to this order
+    cursor.execute("""
+        SELECT product_name, quantity, price,
+               (quantity * price) AS line_total
+        FROM order_items
+        WHERE order_id = %s
+    """, (order_id,))
+    items = cursor.fetchall()
+
+    cursor.close()
+    db.close()
+
+    return render_template("order_confirmation.html", order=order, items=items)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)

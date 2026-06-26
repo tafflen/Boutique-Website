@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout | Boutique</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #fafafa; color: #1a1a2e; }
+
+    .navbar {
+      background: #1a1a2e; padding: 16px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .navbar .brand { color: #e0aaff; font-size: 22px; font-weight: 700; text-decoration: none; }
+    .navbar a { color: #ccc; text-decoration: none; margin-left: 24px; font-size: 14px; }
+    .navbar a:hover { color: white; }
+
+    .page-header {
+      background: linear-gradient(135deg, #1a1a2e, #2d2d4e);
+      color: white; padding: 50px 40px; text-align: center;
+    }
+    .page-header h1 { font-size: 32px; font-weight: 700; }
+    .page-header p  { color: #ccc; margin-top: 8px; }
+
+    .checkout-container {
+      max-width: 960px; margin: 40px auto;
+      padding: 0 40px 80px;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* Form card */
+    .form-card {
+      background: white; border-radius: 16px;
+      padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .form-card h4 { font-size: 18px; font-weight: 700; margin-bottom: 24px; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block; font-size: 13px;
+      font-weight: 600; margin-bottom: 6px; color: #444;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%; padding: 11px 14px;
+      border: 1px solid #e0e0e0; border-radius: 8px;
+      font-size: 14px; font-family: inherit;
+      transition: border-color .2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none; border-color: #6c4fcf;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .btn-pay {
+      width: 100%; padding: 14px;
+      background: #6c4fcf; color: white;
+      border: none; border-radius: 10px;
+      font-size: 16px; font-weight: 600;
+      cursor: pointer; margin-top: 8px;
+      transition: background .2s;
+    }
+    .btn-pay:hover { background: #5a3db8; }
+
+    /* Order summary sidebar */
+    .summary-card {
+      background: white; border-radius: 16px;
+      padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      position: sticky; top: 24px;
+    }
+    .summary-card h4 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+
+    .summary-row {
+      display: flex; justify-content: space-between;
+      font-size: 14px; color: #555; margin-bottom: 12px;
+    }
+    .summary-total {
+      display: flex; justify-content: space-between;
+      font-size: 18px; font-weight: 700;
+      border-top: 1px solid #f0f0f0;
+      padding-top: 16px; margin-top: 8px;
+    }
+
+    .secure-note {
+      text-align: center; font-size: 12px;
+      color: #aaa; margin-top: 12px;
+    }
+
+    .footer {
+      background: #1a1a2e; color: #888;
+      text-align: center; padding: 30px;
+      font-size: 13px; margin-top: 60px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a href="/" class="brand">Boutique</a>
+  <div>
+    <a href="/">Home</a>
+    <a href="/shop">Shop</a>
+    <a href="/cart">Cart</a>
+    {% if session.get("user") %}
+      <a href="/logout">Logout</a>
+    {% else %}
+      <a href="/login">Login</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- Page header -->
+<div class="page-header">
+  <h1>Checkout</h1>
+  <p>Almost there — fill in your delivery details</p>
+</div>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div style="max-width:960px; margin:20px auto; padding:0 40px;">
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }} alert-dismissible fade show">
+          {{ msg }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="checkout-container">
+
+  <!-- LEFT: Address form -->
+  <div class="form-card">
+    <h4>📦 Delivery Details</h4>
+
+    <form method="POST" action="/checkout">
+
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="name"
+               placeholder="Priya Sharma" required>
+      </div>
+
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" name="phone"
+               placeholder="10-digit mobile number"
+               maxlength="10" required>
+      </div>
+
+      <div class="form-group">
+        <label>Delivery Address</label>
+        <textarea name="address" rows="3"
+                  placeholder="House no, Street, Area" required></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" name="city"
+                 placeholder="Chennai" required>
+        </div>
+        <div class="form-group">
+          <label>Pincode</label>
+          <input type="text" name="pincode"
+                 placeholder="600001" maxlength="6" required>
+        </div>
+      </div>
+
+      <!--
+        This button submits the form via POST to /checkout.
+        Your checkout() route reads these fields, validates,
+        saves to DB, and redirects to confirmation page.
+      -->
+      <button type="submit" class="btn-pay">
+        ✅ Place Order — ₹{{ "%.2f"|format(total) }}
+      </button>
+
+      <p class="secure-note">🔒 Your details are safe with us</p>
+
+    </form>
+  </div>
+
+  <!-- RIGHT: Order summary -->
+  <div class="summary-card">
+    <h4>Order Summary</h4>
+
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <span>₹{{ "%.2f"|format(subtotal) }}</span>
+    </div>
+    <div class="summary-row">
+      <span>GST (18%)</span>
+      <span>₹{{ "%.2f"|format(tax) }}</span>
+    </div>
+    <div class="summary-row">
+      <span>Shipping</span>
+      <span style="color: #2e7d32;">FREE</span>
+    </div>
+    <div class="summary-total">
+      <span>Total</span>
+      <span style="color:#6c4fcf;">₹{{ "%.2f"|format(total) }}</span>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">© 2026 Boutique. All rights reserved.</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
