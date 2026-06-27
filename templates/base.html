@@ -1,56 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Boutique</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Elshaddai Boutique</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='stylesBoutique.css') }}">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
 </head>
+
 <body>
 
-<!-- NAVBAR -->
+<!-- ===========================
+     NAVBAR
+=========================== -->
+
 <nav>
-    <a href="/">Home</a>
-    <!-- <a href="#">Categories</a> -->
-    <a href="/about">About</a>
 
-    {% if session.get("user") %}
-    
-    <!-- Show Dashboard link only if admin -->
-    {% if session.get("is_admin") == 1 %}
-        <a href="/admin">Dashboard</a>
-    {% endif %}
+    <!-- Boutique Logo -->
 
-        <a href="#">Profile</a>
-        <a href="/logout">Logout</a>
-    {% else %}
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
-    {% endif %}
+    <div class="logo">
+
+        <a href="/">ELSHADDAI</a>
+
+    </div>
+
+    <!-- Navigation Links -->
+
+    <ul>
+
+        <li>
+
+            <a href="/">
+                Home
+            </a>
+
+        </li>
+
+        <li>
+
+            <a href="/shop">
+                Shop
+            </a>
+
+        </li>
+
+        <li>
+
+            <a href="/about">
+                About
+            </a>
+
+        </li>
+
+        {% if session.get("user") %}
+
+            {% if session.get("is_admin") == 1 %}
+
+            <li>
+
+                <a href="/admin">
+                    Dashboard
+                </a>
+
+            </li>
+
+            {% endif %}
+
+            <li>
+
+                <a href="/cart">
+
+                    <i class="fa-solid fa-cart-shopping"></i>
+
+                    Cart
+
+                    {% set cart_count = session.get("cart", {})|length %}
+
+                    {% if cart_count > 0 %}
+
+                    <span class="cart-badge">
+
+                        {{ cart_count }}
+
+                    </span>
+
+                    {% endif %}
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="/logout">
+
+                    Logout
+
+                </a>
+
+            </li>
+
+        {% else %}
+
+            <li>
+
+                <a href="/login">
+
+                    Login
+
+                </a>
+
+            </li>
+
+            <li>
+
+                <a href="/register">
+
+                    Register
+
+                </a>
+
+            </li>
+
+        {% endif %}
+
+    </ul>
+
 </nav>
 
-<!-- FLASH ALERTS -->
- <!-- Flash Messages — shows success/error/warning messages -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
-<!-- {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="alert {{ category }}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-{% endwith %} -->
+<!-- ===========================
+     FLASH MESSAGES
+=========================== -->
 
-<!-- PAGE CONTENT -->
-{% block content %}{% endblock %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+{% if messages %}
+
+{% for category, message in messages %}
+
+<div class="alert alert-{{ category }}">
+
+{{ message }}
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+{% endwith %}
+
+<!-- ===========================
+     PAGE CONTENT
+=========================== -->
+
+<main>
+
+{% block content %}
+
+{% endblock %}
+
+</main>
+
+<!-- ===========================
+     FOOTER
+=========================== -->
+
+<footer>
+
+    <h3>Elshaddai Boutique</h3>
+
+    <p>
+        Elegant fashion crafted with love, style, and confidence.
+    </p>
+
+    <div class="social-links">
+
+        <a href="#">
+            <i class="fab fa-instagram"></i>
+        </a>
+
+        <a href="#">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+
+        <a href="https://www.youtube.com/@el-shaddaiboutiqe4989">
+            <i class="fab fa-youtube"></i>
+        </a>
+
+    </div>
+
+    <p class="copyright">
+
+        © 2026 Elshaddai Boutique. All Rights Reserved.
+
+    </p>
+
+</footer>
 
 </body>
+
 </html>

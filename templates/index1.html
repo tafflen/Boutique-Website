@@ -2,144 +2,357 @@
 
 {% block content %}
 
-<!-- ═══════════════════════════════════════
+<!-- ==========================================================
      HERO SECTION
-     Full screen banner with boutique name,
-     tagline and a "Shop Now" button
-═══════════════════════════════════════ -->
+     Large landing banner introducing the boutique with
+     a premium fashion look and primary CTA.
+=========================================================== -->
+
 <section class="hero">
-    <h1>WELCOME TO ELSHADDAI BOUTIQUE</h1>
-    <p>Discover unique fashion that speaks your style.</p>
-    <!-- Clicking this takes customer to /shop page -->
-    <a href="/shop" class="cta-button">Shop Now</a>
-    <a href="/cart" style="position:relative;">
-        🛒 Cart
-        {% set cart_count = session.get("cart", {})|length %}
-        {% if cart_count > 0 %}
-          <span style="
-            background:#e0aaff;
-            color:#1a1a2e;
-            font-size:10px;
-            font-weight:700;
-            padding:2px 6px;
-            border-radius:10px;
-            position:absolute;
-            top:-8px;
-            right:-12px;
-          ">{{ cart_count }}</span>
-        {% endif %}
-      </a>
-</section>
 
-<!-- ═══════════════════════════════════════
-     SEARCH BAR
-     Simple search input — will be wired to
-     search functionality in a later day
-═══════════════════════════════════════ -->
-<div class="Searchbar">
-    <input placeholder="SEARCH">
-</div>
+    <div class="hero-content">
 
-<!-- ═══════════════════════════════════════
-     FEATURED PRODUCTS SECTION
-     Shows products dynamically from database
-     These are real products added by admin
-     from /admin/products/add
-═══════════════════════════════════════ -->
-<section class="shop" id="shop">
-    <h2>Featured Products</h2>
-    <h5>YOU CAN STITCH DRESSES OF YOUR CHOICE!</h5>
+        <p class="hero-subtitle">
+            Timeless Fashion • Elegant Style
+        </p>
 
-    <div class="gallery-container">
-        <div class="product-grid">
+        <h1>
+            Discover Your Perfect Outfit
+        </h1>
 
-            {% if featured_products %}
-                <!-- Loop through products fetched from database -->
-                {% for product in featured_products %}
-                <div class="product-card">
+        <p class="hero-description">
+            Handcrafted collections designed with elegance,
+            comfort, and confidence for every occasion.
+        </p>
 
-                    <!-- Product Image -->
-                    {% if product[5] %}
-                        <!-- If admin uploaded an image → show it -->
-                        <img src="{{ url_for('static', filename='uploads/' + product[5]) }}"
-                             alt="{{ product[1] }}">
-                    {% else %}
-                        <!-- No image uploaded → show placeholder emoji -->
-                        <div style="font-size:60px; text-align:center; padding:40px;">🛍️</div>
-                    {% endif %}
+        <div class="hero-buttons">
 
-                    <!-- Product Name -->
-                    <h3>{{ product[1] }}</h3>
+            <a href="/shop" class="cta-button">
+                Shop Collection
+            </a>
 
-                    <!-- Product Price — formatted to 2 decimal places -->
-                    <p>₹ {{ "%.2f"|format(product[3]) }}</p>
-
-                    <!-- View Product Button → goes to detail page -->
-                    <a href="/product/{{ product[0] }}"
-                       class="cart-btn">View Product</a>
-
-                </div>
-                {% endfor %}
-
-            {% else %}
-                <!-- Shown when no products exist in database yet -->
-                <p style="text-align:center; color:#aaa; padding:40px;">
-                    New arrivals coming soon!
-                </p>
-            {% endif %}
+            <a href="/about" class="secondary-btn">
+                Our Story
+            </a>
 
         </div>
+
     </div>
+
 </section>
 
-<!-- ═══════════════════════════════════════
-     REVIEWS SECTION
-     Static reviews for now — can be made
-     dynamic (from DB) in a later day
-═══════════════════════════════════════ -->
-<section>
-    <h2>Customer Reviews</h2>
-    <div class="review-container">
-        <div class="review">⭐️⭐️⭐️⭐️⭐️<br>"Loved the fabric and the fit!"</div>
-        <div class="review">⭐️⭐️⭐️⭐️<br>"Quick delivery & beautiful design."</div>
-        <div class="review">⭐️⭐️⭐️⭐️⭐️<br>"Excellent service. Will order again."</div>
-        <div class="review">⭐️⭐️⭐️<br>"Nice product but delivery was slow."</div>
-        <div class="review">⭐️⭐️⭐️⭐️⭐️<br>"Loved the fabric and the fit!"</div>
-        <div class="review">⭐️⭐️⭐️⭐️<br>"Quick delivery & beautiful design."</div>
+
+<!-- ==========================================================
+     SEARCH SECTION
+     Lets customers quickly search for products.
+     Search functionality can be connected later.
+=========================================================== -->
+
+<!-- <section class="search-section">
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            placeholder="Search dresses, sarees, kurtis..."
+        >
+
+        <button>
+
+            Search
+
+        </button>
+
     </div>
+
+</section> -->
+
+
+<!-- ==========================================================
+     FEATURE COLLECTION
+     Small premium section introducing the boutique
+     before the product gallery.
+=========================================================== -->
+
+<section class="collection-intro">
+
+    <section class="new-arrivals">
+
+    <div class="section-title">
+        <span>NEW ARRIVALS</span>
+        <h2>Crafted For Every Woman</h2>
+
+        <p>
+            From elegant sarees to beautifully stitched dresses,
+            every design is carefully selected to bring out confidence,
+            comfort, and timeless beauty.
+        </p>
+    </div>
+
+    <div class="arrival-grid">
+
+        {% for product in featured_products %}
+
+        <div class="arrival-card">
+
+            {% if product[5] %}
+                <img
+                src="{{ url_for('static',
+                filename='uploads/' + product[5]) }}"
+                alt="{{ product[1] }}">
+            {% endif %}
+
+            <h3>{{ product[1] }}</h3>
+
+            <p class="price">
+                ₹{{ "%.2f"|format(product[3]) }}
+            </p>
+
+            <a href="/product/{{ product[0] }}"
+               class="view-btn">
+
+                View Product
+
+            </a>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="shop-more">
+
+        <a href="/shop" class="shop-more-btn">
+
+            Shop More →
+
+        </a>
+
+    </div>
+
 </section>
 
-<!-- ═══════════════════════════════════════
-     FEATURES SECTION
-     Highlights what makes the boutique special
-     Good for client-facing trust building
-═══════════════════════════════════════ -->
-<section class="features">
-    <div class="feature-item">
-        <h2>Exclusive Designs</h2>
-        <p>Handcrafted pieces that you won't find anywhere else.</p>
-    </div>
-    <div class="feature-item">
-        <h2>Sustainable Fashion</h2>
-        <p>We care about the environment. All our materials are eco-friendly.</p>
-    </div>
-    <div class="feature-item">
-        <h2>Personalized Shopping</h2>
-        <p>Get styling advice and personalized recommendations.</p>
-    </div>
-</section>
+    <h2>
 
-<!-- ═══════════════════════════════════════
-     FOOTER
-     Copyright + social media links
-     YouTube link is real — kept from original
-═══════════════════════════════════════ -->
-<footer>
-    <p>&copy; 2026 Elshaddai Boutique | Follow us on
-        <a href="#">Instagram</a>
-        <a href="#">Facebook</a>
-        <a href="https://www.youtube.com/@el-shaddaiboutiqe4989">YouTube</a>
+        Crafted For Every Woman
+
+    </h2>
+
+    <p>
+
+        From elegant sarees to beautifully stitched dresses,
+        every design is carefully selected to bring out
+        confidence, comfort, and timeless beauty.
+
     </p>
-</footer>
+
+</section>
+<!-- ==========================================================
+     FEATURED PRODUCTS
+     Dynamic products fetched from MySQL.
+=========================================================== -->
+
+
+<!-- ==========================================================
+     WHY CHOOSE ELSHADDAI
+     Highlights the boutique's strengths.
+=========================================================== -->
+
+<section class="features">
+
+    <div class="feature-item">
+
+        <div class="icon">
+            ✨
+        </div>
+
+        <h2>
+            Exclusive Designs
+        </h2>
+
+        <p>
+            Every collection is carefully selected to give you elegant,
+            timeless fashion that stands out.
+        </p>
+
+    </div>
+
+    <div class="feature-item">
+
+        <div class="icon">
+            🌿
+        </div>
+
+        <h2>
+            Premium Quality
+        </h2>
+
+        <p>
+            Comfortable fabrics, beautiful craftsmanship,
+            and attention to every detail.
+        </p>
+
+    </div>
+
+    <div class="feature-item">
+
+        <div class="icon">
+            💜
+        </div>
+
+        <h2>
+            Personalized Experience
+        </h2>
+
+        <p>
+            Whether it's styling advice or custom stitching,
+            we're here to help you look your best.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================================
+     CUSTOMER REVIEWS
+=========================================================== -->
+
+<section class="reviews">
+
+    <h2>
+
+        What Our Customers Say
+
+    </h2>
+
+    <div class="review-container">
+
+        <div class="review">
+
+            <p>
+
+                "The saree quality exceeded my expectations.
+                Beautiful fabric and fast delivery."
+
+            </p>
+
+            <h4>
+
+                — Priya S.
+
+            </h4>
+
+        </div>
+
+        <div class="review">
+
+            <p>
+
+                "Absolutely loved the stitching.
+                Perfect fitting and elegant design."
+
+            </p>
+
+            <h4>
+
+                — Anjali R.
+
+            </h4>
+
+        </div>
+
+        <div class="review">
+
+            <p>
+
+                "Very friendly service and premium collection.
+                Definitely ordering again."
+
+            </p>
+
+            <h4>
+
+                — Divya M.
+
+            </h4>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ==========================================================
+     NEWSLETTER
+=========================================================== -->
+
+<section class="newsletter">
+
+    <span class="section-tag">
+
+        Stay Connected
+
+    </span>
+
+    <h2>
+
+        Join Our Fashion Community
+
+    </h2>
+
+    <p>
+
+        Be the first to discover new arrivals,
+        exclusive collections, and special offers.
+
+    </p>
+
+    <form class="newsletter-form">
+
+        <input
+            type="email"
+            placeholder="Enter your email"
+        >
+
+        <button>
+
+            Subscribe
+
+        </button>
+
+    </form>
+
+</section>
+
+
+<!-- ==========================================================
+     FINAL CALL TO ACTION
+=========================================================== -->
+
+<section class="final-cta">
+
+    <h2>
+
+        Fashion That Reflects Your Personality
+
+    </h2>
+
+    <p>
+
+        Discover handcrafted collections made with elegance,
+        comfort, and confidence.
+
+    </p>
+
+    <a href="/shop" class="cta-button">
+
+        Explore Collection
+
+    </a>
+
+</section>
 
 {% endblock %}

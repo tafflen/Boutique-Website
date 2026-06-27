@@ -278,9 +278,11 @@
 
       <!-- Add to Cart — wired up in Day 15 -->
       {% if product['stock'] > 0 %}
-         <form method="POST" action="/cart/add/{{ product['id'] }}">
-          <button type="submit" class="btn-cart">🛒 Add to Cart</button>
-        </form>
+         <form method="POST" action="/add-to-cart">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="product_id" value="{{ product['id'] }}">
+            <button type="submit" class="btn-cart">🛒 Add to Cart</button>
+          </form>
       {% else %}
         <a href="#" class="btn-cart disabled">Out of Stock</a>
       {% endif %}

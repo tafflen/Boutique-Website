@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='stylesBoutique.css') }}">
 
 <form method="POST" action="/login">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="text" name="username" placeholder="Username">
     <input type="password" name="password" placeholder="Password">
     <button type="submit">Login</button>

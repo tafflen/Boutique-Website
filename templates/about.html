@@ -1,54 +1,244 @@
 {% extends "base.html" %}
-
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta No.="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elshaddai Boutique</title>
+<section class="about-section">
 
-    <link rel="icon" href="Imgs_Boutique/BoutiqueFrontDisplay.jpg">
-    <!-- <link rel="stylesheet" href="stylesBoutique.css"> -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='stylesBoutique.css') }}">
-</head>
-<body>
+    <h1>About Us</h1>
 
-<div class="container">
-  <!-- <div class="slide-track"> -->
-    <div  class="AboutUs">
-       <h1><b>🌸 About Us</b></h1>
+    <h3>
+        Welcome to <strong>Elshaddai Boutique</strong>,
+        where fashion meets meaning.
+    </h3>
 
-      <br> <h3>Welcome to <b>Elshaddai Boutique</b>, where fashion meets meaning.</h3> <br> <br>
-      Founded with love and creativity, our boutique is more than just a collection of clothes — it’s a reflection of style, story, and soul.<br><br> 
-      Every piece we offer is handpicked or designed with care,focusing on quality, elegance, and comfort.<br><br> We believe fashion should empower, not overwhelm. Whether you're dressing for a casual outing or a special day, our designs help you express your uniqueness with confidence.<br> <br> 
-<br>
-       <b><h3>👗 What We Value: </h3></b> <br>
+    <p>
+        Founded with love and creativity, our boutique is more than just a collection
+        of clothes—it's a reflection of style, story, and soul.
+    </p>
 
-       <ul>
-<li>Ethical & thoughtful sourcing</li><br> 
-<li>Limited, meaningful collections</li><br> Comfort with charm<br> 
-<li>Sustainable practices (where possible)</li><br> 
-       </ul> <br>
+    <p>
+        Every piece we offer is carefully selected with quality,
+        elegance, and comfort in mind.
+    </p>
 
-        At Elshaddai Boutique, you're not just a customer — you're part of our story.<br> <br> Thank you for supporting small businesses, slow fashion, and creative dreams. 💫<br><br><br>
+    <p>
+        We believe fashion should empower, not overwhelm. Whether you're dressing
+        for a casual outing or a special occasion, our designs help you express
+        yourself with confidence.
+    </p>
+
+    <h2>Our Values</h2>
+
+    <ul>
+        <li>Ethical & Thoughtful Sourcing</li>
+        <li>Limited, Meaningful Collections</li>
+        <li>Comfort with Elegance</li>
+        <li>Sustainable Practices</li>
+    </ul>
+
+    <p>
+        Thank you for supporting small businesses, slow fashion,
+        and creative craftsmanship.
+    </p>
+
+</section>
+
+<section class="contact-section">
+
+    <h1>Contact Us</h1>
+
+    <p><strong>Email:</strong> contact@elshaddai.com</p>
+
+    <p><strong>Phone:</strong> +91 XXXXX XXXXX</p>
+
+    <p><strong>Location:</strong> Chennai, Tamil Nadu, India</p>
+
+    <p><strong>Business Hours:</strong> Monday – Saturday | 10:00 AM – 7:00 PM</p>
+
+    <p><strong>Response Time:</strong> Within 24 Hours</p>
+
+    <div class="social-links">
+
+        <a href="#">
+            Instagram
+        </a>
+
+        <a href="#">
+            Facebook
+        </a>
+
     </div>
 
+</section>
+{% endblock%}
+<style>
 
+    /*=====================================
+ABOUT PAGE
+=====================================*/
 
-    <div class="contact">
-       <b><h1>📞 Contact Us</h1></b> <br> 
-       We’d love to hear from you! Whether it’s a question, suggestion, or just a hello — reach out any time.<br> <br>
+.container{
+    max-width:1200px;
+    margin:80px auto;
+    padding:0 20px;
+}
 
-     📧 Email: contact@elshaddai.com <br> 
-     📱 Phone: +91-XXXXXXXXXX<br> 
-     🏡 Address: 123 Boutique Lane, Chennai, India<br> <br>  
+.about-section,
+.contact-section{
+    background:#fff;
+    padding:60px;
+    margin-bottom:50px;
+    border-radius:24px;
+    box-shadow:0 15px 40px rgba(0,0,0,.08);
+    transition:.35s;
+}
 
-    🕐 We usually reply within 24 hours.<br> Follow us on:<br> 
-    🌐 Instagram: [@boutique]<br> 
-    🌐 Facebook: [Elshaddai Boutique]
-   </div>
+.about-section:hover,
+.contact-section:hover{
+    transform:translateY(-6px);
+    box-shadow:0 22px 55px rgba(0,0,0,.12);
+}
 
-</body>
-<!-- </div> -->
-{% endblock %}
+.about-section h1,
+.contact-section h1{
+    font-family:'Playfair Display',serif;
+    font-size:3rem;
+    font-weight:700;
+    color:#222;
+    margin-bottom:25px;
+    position:relative;
+}
+
+.about-section h1::after,
+.contact-section h1::after{
+    content:"";
+    display:block;
+    width:80px;
+    height:4px;
+    background:#8f6bd8;
+    margin-top:15px;
+    border-radius:20px;
+}
+
+.about-section h3{
+    font-size:1.4rem;
+    font-weight:500;
+    color:#444;
+    margin-bottom:30px;
+    line-height:1.7;
+}
+
+.about-section h2{
+    font-family:'Playfair Display',serif;
+    font-size:2rem;
+    color:#8f6bd8;
+    margin:40px 0 20px;
+    text-transform:none;
+}
+
+.about-section p,
+.contact-section p{
+    color:#666;
+    font-size:16px;
+    line-height:1.9;
+    margin-bottom:20px;
+}
+
+.about-section ul{
+    padding-left:25px;
+    margin:25px 0;
+}
+
+.about-section li{
+    color:#555;
+    margin-bottom:14px;
+    line-height:1.8;
+}
+
+.about-section strong{
+    color:#8f6bd8;
+}
+
+.contact-section{
+    text-align:left;
+}
+
+.contact-section p strong{
+    color:#222;
+    display:inline-block;
+    min-width:140px;
+}
+
+.social-links{
+    margin-top:35px;
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+}
+
+.social-links a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:12px 26px;
+    border:2px solid #8f6bd8;
+    border-radius:40px;
+    color:#8f6bd8;
+    font-weight:600;
+    transition:.3s;
+}
+
+.social-links a:hover{
+    background:#8f6bd8;
+    color:#fff;
+    transform:translateY(-3px);
+}
+
+.about-section,
+.contact-section{
+    animation:fadeUp .7s ease;
+}
+
+@keyframes fadeUp{
+
+    from{
+        opacity:0;
+        transform:translateY(30px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+@media(max-width:768px){
+
+    .container{
+        margin:40px auto;
+        padding:15px;
+    }
+
+    .about-section,
+    .contact-section{
+        padding:35px 25px;
+    }
+
+    .about-section h1,
+    .contact-section h1{
+        font-size:2.3rem;
+    }
+
+    .about-section h2{
+        font-size:1.6rem;
+    }
+
+    .contact-section p strong{
+        min-width:100px;
+    }
+
+    .social-links{
+        justify-content:center;
+    }
+
+}
+</style>

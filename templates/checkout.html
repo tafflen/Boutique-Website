@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout | Boutique</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -143,7 +144,7 @@
     <h4>📦 Delivery Details</h4>
 
     <form method="POST" action="/checkout">
-
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="form-group">
         <label>Full Name</label>
         <input type="text" name="name"
@@ -216,5 +217,257 @@
 
 <div class="footer">© 2026 Boutique. All rights reserved.</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ═══════════════════════════════════════════════════
+     AI CHAT WIDGET — paste before </body> on every page
+     ═══════════════════════════════════════════════════ -->
+
+<style>
+  /* Floating button — bottom right corner */
+  #chat-bubble {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 56px; height: 56px;
+    background: #6c4fcf; color: white;
+    border-radius: 50%; border: none;
+    font-size: 24px; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(108,79,207,0.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; transition: transform .2s;
+  }
+  #chat-bubble:hover { transform: scale(1.08); }
+
+  /* Chat window */
+  #chat-window {
+    position: fixed; bottom: 96px; right: 28px;
+    width: 340px; height: 460px;
+    background: white; border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    display: none; flex-direction: column;
+    z-index: 1000; overflow: hidden;
+    border: 1px solid #f0f0f0;
+  }
+  #chat-window.open { display: flex; }
+
+  /* Header */
+  #chat-header {
+    background: #1a1a2e; color: white;
+    padding: 14px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  #chat-header span { font-weight: 600; font-size: 15px; }
+  #chat-header button {
+    background: none; border: none; color: #aaa;
+    font-size: 18px; cursor: pointer; padding: 0 4px;
+  }
+  #chat-header button:hover { color: white; }
+
+  /* Messages area */
+  #chat-messages {
+    flex: 1; overflow-y: auto;
+    padding: 16px; display: flex;
+    flex-direction: column; gap: 10px;
+  }
+
+  /* Individual message bubbles */
+  .msg-bot, .msg-user {
+    max-width: 82%; padding: 10px 13px;
+    border-radius: 12px; font-size: 14px;
+    line-height: 1.5;
+  }
+  .msg-bot {
+    background: #f0eeff; color: #1a1a2e;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .msg-user {
+    background: #6c4fcf; color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+
+  /* Typing indicator */
+  .msg-typing {
+    background: #f0eeff; color: #888;
+    padding: 10px 13px; border-radius: 12px;
+    font-size: 13px; align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+
+  /* Input area */
+  #chat-input-area {
+    padding: 12px; border-top: 1px solid #f0f0f0;
+    display: flex; gap: 8px;
+  }
+  #chat-input {
+    flex: 1; padding: 9px 12px;
+    border: 1px solid #e0e0e0; border-radius: 8px;
+    font-size: 14px; font-family: inherit;
+    outline: none;
+  }
+  #chat-input:focus { border-color: #6c4fcf; }
+  #chat-send {
+    padding: 9px 14px; background: #6c4fcf; color: white;
+    border: none; border-radius: 8px;
+    cursor: pointer; font-size: 14px;
+    transition: background .2s;
+  }
+  #chat-send:hover { background: #5a3db8; }
+
+  /* Clear button */
+  #chat-clear {
+    background: none; border: none; color: #aaa;
+    font-size: 12px; cursor: pointer; padding: 0;
+    text-decoration: underline;
+  }
+  #chat-clear:hover { color: #e53935; }
+</style>
+
+<!-- Floating bubble button -->
+<button id="chat-bubble" onclick="toggleChat()" title="Chat with us">
+  💬
+</button>
+
+<!-- Chat window -->
+<div id="chat-window">
+
+  <!-- Header -->
+  <div id="chat-header">
+    <span>🛍️ Boutique Assistant</span>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button onclick="clearChat()" id="chat-clear" title="Clear history">Clear</button>
+      <button onclick="toggleChat()" title="Close">✕</button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div id="chat-messages">
+    <!-- Welcome message shown immediately -->
+    <div class="msg-bot">
+      Hi! 👋 I'm your Boutique shopping assistant. Ask me about our sarees,
+      kurtis, lehengas, or anything else you're looking for!
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div id="chat-input-area">
+    <input
+      type="text"
+      id="chat-input"
+      placeholder="Ask about our products..."
+      onkeydown="if(event.key==='Enter') sendMessage()"
+    >
+    <button id="chat-send" onclick="sendMessage()">Send</button>
+  </div>
+
+</div>
+
+<script>
+  // ── Toggle chat window open/closed ────────────────────────────────
+  function toggleChat() {
+    const win = document.getElementById("chat-window");
+    win.classList.toggle("open");
+
+    // Auto-focus the input when opened
+    if (win.classList.contains("open")) {
+      document.getElementById("chat-input").focus();
+    }
+  }
+
+  // ── Send message to Flask /chat route ─────────────────────────────
+  async function sendMessage() {
+    const input   = document.getElementById("chat-input");
+    const messages = document.getElementById("chat-messages");
+    const message = input.value.trim();
+
+    if (!message) return;   // ignore empty sends
+
+    // ── Show user's message immediately (don't wait for API) ──────
+    messages.innerHTML += `<div class="msg-user">${escapeHtml(message)}</div>`;
+    input.value = "";       // clear input field
+    scrollToBottom();
+
+    // ── Show typing indicator while waiting for response ──────────
+    const typingId = "typing-" + Date.now();
+    messages.innerHTML += `<div class="msg-typing" id="${typingId}">Assistant is typing...</div>`;
+    scrollToBottom();
+
+    try {
+      // ── AJAX call to Flask /chat route ────────────────────────
+      // fetch() sends HTTP requests from JavaScript without page reload
+      const response = await fetch("/chat", {
+        method : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // CSRF token must be sent with every POST request
+          "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({ message: message })
+        // JSON.stringify converts JS object to JSON string
+        // Flask reads it with request.get_json()
+      });
+
+      const data = await response.json();
+      // data.reply = the text Gemini returned
+
+      // ── Remove typing indicator ───────────────────────────────
+      const typing = document.getElementById(typingId);
+      if (typing) typing.remove();
+
+      // ── Show bot's reply ──────────────────────────────────────
+      messages.innerHTML += `<div class="msg-bot">${escapeHtml(data.reply)}</div>`;
+
+    } catch (error) {
+      // Network error or server error
+      const typing = document.getElementById(typingId);
+      if (typing) typing.remove();
+      messages.innerHTML += `<div class="msg-bot">Sorry, something went wrong. Please try again.</div>`;
+    }
+
+    scrollToBottom();
+  }
+
+  // ── Clear conversation history ─────────────────────────────────────
+  async function clearChat() {
+    await fetch("/clear-chat", {
+      method : "POST",
+      headers: { "X-CSRFToken": getCSRFToken() }
+    });
+
+    // Reset messages to just the welcome message
+    document.getElementById("chat-messages").innerHTML = `
+      <div class="msg-bot">
+        Hi! 👋 I'm your Boutique shopping assistant. Ask me about our sarees,
+        kurtis, lehengas, or anything else you're looking for!
+      </div>`;
+  }
+
+  // ── Helper: scroll messages to bottom after each new message ──────
+  function scrollToBottom() {
+    const messages = document.getElementById("chat-messages");
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // ── Helper: prevent XSS — escape user text before adding to HTML ──
+  // Never use innerHTML with raw user input — always escape first
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+  }
+
+  // ── Helper: get CSRF token from the page ─────────────────────────
+  // Flask-WTF sets this token — we read it and send with AJAX requests
+  function getCSRFToken() {
+    // Look for a meta tag OR a hidden input on the page
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    if (meta) return meta.getAttribute("content");
+
+    const input = document.querySelector('input[name="csrf_token"]');
+    if (input) return input.value;
+
+    return "";   // fallback — CSRF check may fail without this
+  }
+</script>
+
 </body>
 </html>

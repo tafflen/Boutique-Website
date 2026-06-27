@@ -227,9 +227,10 @@
                   </form> -->
                   <!-- Replace your current delete form with this -->
                   <form method="POST" 
-                  action="/admin/products/delete/{{ product[0] }}" 
-                  style="display:inline;"
-                  onsubmit="return confirm('Delete \'{{ product[1] }}\'? This cannot be undone.');">
+                  action="/admin/products/delete/{{ product[0] }}" >
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <!-- style="display:inline;"
+                  onsubmit="return confirm('Delete \'{{ product[1] }}\'? This cannot be undone.');"> -->
                   
                   <button type="submit" class="btn-delete">Delete</button>
                   </form>

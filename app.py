@@ -1,16 +1,36 @@
 from flask import Flask, render_template, request, redirect, flash, session, url_for
+from flask_wtf.csrf import CSRFProtect
+from functools import wraps
 import mysql.connector
 import bcrypt
 import os
 from werkzeug.utils import secure_filename  # sanitizes filenames
-
-
+import google.generativeai as genai
 app = Flask(__name__)
-app.secret_key = 'boutique@#xK92!mPqL77zRt'  # Strong secret key
+csrf = CSRFProtect(app)
+
+# ─────────────────────────────────────────
+# GEMINI API CONFIG
+# ─────────────────────────────────────────
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "I'LL PUT MY KEY AFTER CREATING THE .ENV FILE")
+genai.configure(api_key=GEMINI_API_KEY) 
+
+# Create the model instance once at startup
+# gemini-1.5-flash is fast and free-tier friendly
+gemini_model = genai.GenerativeModel("gemini-2.5-flash-lite")
+
+# ─────────────────────────────────────────
+# SECRET KEY — move to environment variable
+# os.environ.get() reads from your system environment
+# If not found, falls back to the hardcoded string (for local dev)
+# On production (Render/Railway), set this as an env variable
+# ─────────────────────────────────────────
+app.secret_key = os.environ.get("SECRET_KEY", "boutique@#xK92!mPqL77zRt")
 
 # ─────────────────────────────────────────
 # FILE UPLOAD CONFIG
 # ─────────────────────────────────────────
+csrf = CSRFProtect(app)
 
 # Folder where uploaded images will be saved
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
@@ -23,8 +43,22 @@ MAX_CONTENT_LENGTH = 5 * 1024 * 1024
 
 app.config['UPLOAD_FOLDER']      = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
+app.config['WTF_CSRF_TIME_LIMIT'] = 3600  
 
-
+def sanitize(text, max_length=200):
+    """
+    Cleans user input before saving to DB or displaying.
+    
+    strip()     → removes leading/trailing spaces
+    max_length  → prevents storing huge strings (DoS protection)
+    
+    We do NOT use escape() here because Jinja2 auto-escapes
+    output in templates — double-escaping would show &amp; etc.
+    Just strip and truncate is enough for input sanitization.
+    """
+    if not text:
+        return ""
+    return text.strip()[:max_length]
 
 # ─────────────────────────────────────────
 # DB HELPER — fresh connection every time
@@ -52,7 +86,21 @@ def allowed_file(filename):
 
 @app.route("/")
 def home():
-    return render_template("index1.html")
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute("""
+    SELECT id, name, category, price, stock, image
+    FROM products
+    ORDER BY id DESC
+    LIMIT 4
+""")
+
+    featured_products = cursor.fetchall()
+
+    cursor.close()
+    db.close()
+    return render_template("index1.html",featured_products=featured_products)
 
 @app.route("/about")
 def about():
@@ -62,6 +110,53 @@ def about():
 def contact():
     return render_template("contactBoutique.html")
 
+# ─────────────────────────────────────────────────────────────────────────────
+# DECORATORS — reusable route protection
+# ─────────────────────────────────────────────────────────────────────────────
+
+def login_required(f):
+    """
+    Use this decorator on any route that needs a logged-in user.
+    Replaces the manual: if not session.get("user"): redirect("/login")
+
+    @login_required          ← add this line above any route function
+    def my_route():
+        ...
+
+    How it works:
+    1. Browser requests the route
+    2. login_required runs FIRST
+    3. If session has "user" → calls your route function normally
+    4. If not → redirects to login page immediately
+    """
+    @wraps(f)
+    # @wraps preserves the original function's name and docstring
+    # Without it, all decorated routes would appear as "wrapper" in Flask
+    def wrapper(*args, **kwargs):
+        if not session.get("user"):
+            flash("Please login to continue.", "error")
+            return redirect(url_for("handle_login"))
+        return f(*args, **kwargs)   # call the actual route function
+    return wrapper
+
+
+def admin_required(f):
+    """
+    Use this decorator on any admin-only route.
+    ALWAYS stack it BELOW @login_required — login is checked first.
+
+    @login_required     ← checked first
+    @admin_required     ← checked second
+    def admin_route():
+        ...
+    """
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if session.get("is_admin") != 1:
+            flash("Access denied. Admins only.", "error")
+            return redirect(url_for("home"))
+        return f(*args, **kwargs)
+    return wrapper
 
 # ─────────────────────────────────────────
 # LOGIN
@@ -151,17 +246,19 @@ def register():
 # Only accessible if logged in AND is admin
 # ─────────────────────────────────────────
 @app.route("/admin")
+@login_required
+@admin_required  
 def admin_dashboard():
 
-    # Check 1 — is the user logged in at all?
-    if not session.get("user"):
-        flash("Please login to continue.", "error")
-        return redirect("/login")
+    # # Check 1 — is the user logged in at all?
+    # if not session.get("user"):
+    #     flash("Please login to continue.", "error")
+    #     return redirect("/login")
 
-      # Use session instead of querying DB again
-    if session.get("is_admin") != 1:
-        # flash("Access denied. Admins only.", "error")
-        return redirect("/")
+    #   # Use session instead of querying DB again
+    # if session.get("is_admin") != 1:
+    #     # flash("Access denied. Admins only.", "error")
+    #     return redirect("/")
 
     # return render_template("admin/dashboard.html")
 
@@ -184,17 +281,19 @@ def admin_dashboard():
                            total_users=total_users)
 
 @app.route("/admin/products")
+@login_required
+@admin_required
 def admin_products():
 
-    # Protection — not logged in
-    if not session.get("user"):
-        flash("Please login to continue.", "error")
-        return redirect("/login")
+    # # Protection — not logged in
+    # if not session.get("user"):
+    #     flash("Please login to continue.", "error")
+    #     return redirect("/login")
 
-    # Protection — not admin
-    if session.get("is_admin") != 1:
-        flash("Access denied. Admins only.", "error")
-        return redirect("/")
+    # # Protection — not admin
+    # if session.get("is_admin") != 1:
+    #     flash("Access denied. Admins only.", "error")
+    #     return redirect("/")
 
     db = get_db()
     cursor = db.cursor(buffered=True)
@@ -213,23 +312,25 @@ def admin_products():
 # ADD PRODUCT — GET shows form, POST saves it
 # ─────────────────────────────────────────
 @app.route("/admin/products/add", methods=["GET", "POST"])
+@login_required
+@admin_required
 def add_product():
 
-    # Protection
-    if not session.get("user"):
-        flash("Please login to continue.", "error")
-        return redirect("/login")
+    # # Protection
+    # if not session.get("user"):
+    #     flash("Please login to continue.", "error")
+    #     return redirect("/login")
 
-    if session.get("is_admin") != 1:
-        flash("Access denied. Admins only.", "error")
-        return redirect("/")
+    # if session.get("is_admin") != 1:
+    #     flash("Access denied. Admins only.", "error")
+    #     return redirect("/")
 
     if request.method == "POST":
 
         # ── Step 1: Get text fields
-        name        = request.form.get("name", "").strip()
-        description = request.form.get("description", "").strip()
-        category    = request.form.get("category", "").strip()
+        name        = sanitize(request.form.get("name",        ""), 200)
+        description = sanitize(request.form.get("description", ""), 1000)
+        category    = sanitize(request.form.get("category",    ""), 100)
         price       = request.form.get("price", "").strip()
         stock       = request.form.get("stock", "").strip()
 
@@ -316,6 +417,8 @@ def add_product():
 # EDIT PRODUCT  — GET: show form  |  POST: save changes
 # ─────────────────────────────────────────────
 @app.route("/admin/products/edit/<int:product_id>", methods=["GET", "POST"])
+@login_required
+@admin_required
 def edit_product(product_id):
     # Block non-admins immediately
     if session.get("is_admin") != 1:
@@ -391,6 +494,8 @@ def edit_product(product_id):
 # DELETE PRODUCT  — POST only (never allow GET deletes)
 # ─────────────────────────────────────────────
 @app.route("/admin/products/delete/<int:product_id>", methods=["POST"])
+@login_required
+@admin_required
 def delete_product(product_id):
     # Block non-admins immediately
     if session.get("is_admin") != 1:
@@ -714,16 +819,17 @@ def clear_cart():
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.route("/checkout", methods=["GET", "POST"])
+@login_required 
 def checkout():
     """
     GET  → Show address form to the customer
     POST → Validate inputs, save order to DB, clear cart, redirect to confirmation
     """
 
-    # ── Must be logged in ─────────────────────────────────────────────
-    if not session.get("user"):
-        flash("Please login to place an order.", "error")
-        return redirect("/login")
+    # # ── Must be logged in ─────────────────────────────────────────────
+    # if not session.get("user"):
+    #     flash("Please login to place an order.", "error")
+    #     return redirect("/login")
 
     # ── Cart must have items ──────────────────────────────────────────
     cart_items = session.get("cart", {})
@@ -739,12 +845,11 @@ def checkout():
     if request.method == "POST":
 
         # ── Step 1: Read form fields ──────────────────────────────────
-        name    = request.form.get("name",    "").strip()
-        phone   = request.form.get("phone",   "").strip()
-        address = request.form.get("address", "").strip()
-        city    = request.form.get("city",    "").strip()
-        pincode = request.form.get("pincode", "").strip()
-
+        name    = sanitize(request.form.get("name",    ""), 100)
+        phone   = sanitize(request.form.get("phone",   ""), 15)
+        address = sanitize(request.form.get("address", ""), 300)
+        city    = sanitize(request.form.get("city",    ""), 100)
+        pincode = sanitize(request.form.get("pincode", ""), 10)
         # ── Step 2: Validate every field ──────────────────────────────
         errors = []
 
@@ -838,6 +943,7 @@ def checkout():
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.route("/order-confirmation/<int:order_id>")
+@login_required 
 def order_confirmation(order_id):
     """
     Shows thank-you page after successful order.
@@ -874,6 +980,160 @@ def order_confirmation(order_id):
     db.close()
 
     return render_template("order_confirmation.html", order=order, items=items)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AI CHATBOT ROUTE
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route("/chat", methods=["POST"])
+@csrf.exempt 
+def chat():
+    """
+    Receives a message from the chat widget via AJAX (fetch API).
+    Sends it to Gemini with conversation history and system context.
+    Returns a JSON response — NOT a full HTML page.
+
+    Why JSON? The chat widget updates the page dynamically using
+    JavaScript without a full page reload. This is called AJAX.
+    """
+
+    # ── Read the user's message from the POST body ────────────────────
+    # request.get_json() parses the JSON body sent by fetch() in JS
+    data    = request.get_json()
+    message = data.get("message", "").strip()
+
+    if not message:
+        return {"reply": "Please type a message."}, 400
+
+    # ── Initialize chat history in session if first message ──────────
+    # History format Gemini expects:
+    # [{"role": "user", "parts": ["hello"]},
+    #  {"role": "model", "parts": ["hi there!"]}]
+    if "chat_history" not in session:
+        session["chat_history"] = []
+
+    # ── Build system context — fetch products from DB ─────────────────
+    # This gives Gemini real knowledge of YOUR products
+    try:
+        db     = get_db()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT name, category, price, stock FROM products LIMIT 20")
+        products = cursor.fetchall()
+        cursor.close()
+        db.close()
+
+        # Format products as a readable list for the prompt
+        product_list = "\n".join([
+            f"- {p['name']} ({p['category']}) — ₹{p['price']} — "
+            f"{'In stock' if p['stock'] > 0 else 'Out of stock'}"
+            for p in products
+        ])
+    except Exception:
+        product_list = "Product information temporarily unavailable."
+
+    # ── System prompt — defines Gemini's personality ──────────────────
+    # This is prepended to every conversation so Gemini stays in context
+    system_prompt = f"""
+    You are Elshaddai Boutique's AI Shopping Assistant.
+
+    Your role:
+    - Help customers shop for women's fashion.
+    - Answer questions about products, sizes, colors, styling, matching accessories, fabrics, and availability.
+    - Recommend products only from the boutique's inventory.
+
+    Current products:
+    {product_list}
+
+    STRICT RESPONSE RULES:
+    - NEVER write long paragraphs.
+    - Keep every reply between 30 and 80 words.
+    - Use at most 3 short sentences.
+    - If listing options, give only the top 3 recommendations.
+    - Avoid detailed explanations unless the customer explicitly asks for more.
+    - Be friendly, warm, and conversational.
+    - Mention prices only when recommending a product.
+    - If a product is unavailable, suggest similar available products.
+    - Never invent products not listed above.
+    - If the question is unrelated to fashion or shopping, politely redirect the conversation back to the boutique.
+
+    Examples:
+
+    Customer: What accessories suit a red saree?
+
+    Assistant:
+    Gold jewelry, pearl accessories, or a black clutch pair beautifully with a red saree. For weddings, gold is the most elegant choice. Would you like suggestions for matching footwear too?
+
+    Customer: Do you have cotton kurtis?
+
+    Assistant:
+    Yes! We currently have these cotton kurtis:
+    • Floral Cotton Kurti – ₹899
+    • Printed Cotton Kurti – ₹1099
+    Which style are you looking for?
+
+    Customer: Tell me everything about sarees.
+
+    Assistant:
+    We have several sarees in different fabrics and colors. Let me know if you prefer cotton, silk, party wear, or bridal sarees, and I'll recommend the best options.
+    """
+
+    # ── Build full conversation for Gemini ────────────────────────────
+    # We send: system prompt + history + new message
+    # Gemini sees the full context every time
+    history = session["chat_history"]
+
+    try:
+        # Start a chat with existing history
+        chat_session = gemini_model.start_chat(history=history)
+
+        # Send system prompt + user message together on first message,
+        # or just user message on subsequent messages
+        if len(history) == 0:
+            full_message = f"{system_prompt}\n\nCustomer: {message}"
+        else:
+            full_message = message
+
+        response = chat_session.send_message(full_message)
+        reply    = response.text
+
+    except Exception as e:
+        # Graceful fallback — never show raw errors to users
+        reply = "Sorry, I'm having trouble connecting right now. Please try again in a moment."
+        print(f"Gemini error: {e}")   # log to terminal for debugging
+
+    # ── Save updated history to session ──────────────────────────────
+    session["chat_history"].append({
+        "role" : "user",
+        "parts": [message]    # save original message, not the system-prefixed one
+    })
+    session["chat_history"].append({
+        "role" : "model",
+        "parts": [reply]
+    })
+
+    # Keep history to last 10 exchanges (20 messages) to avoid huge cookies
+    # Slice from the end to keep most recent messages
+    if len(session["chat_history"]) > 20:
+        session["chat_history"] = session["chat_history"][-20:]
+
+    session.modified = True
+
+    # ── Return JSON to the JavaScript fetch() call ────────────────────
+    # jsonify() converts a Python dict to a proper JSON HTTP response
+    from flask import jsonify
+    return jsonify({"reply": reply})
+
+
+# ─────────────────────────────────────────
+# CLEAR CHAT HISTORY
+# ─────────────────────────────────────────
+@app.route("/clear-chat", methods=["POST"])
+@csrf.exempt
+def clear_chat():
+    """Wipes chat history from session. Called by the 'Clear' button."""
+    session.pop("chat_history", None)
+    session.modified = True
+    return {"status": "cleared"}, 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

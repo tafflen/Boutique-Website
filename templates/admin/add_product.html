@@ -146,7 +146,8 @@
       <h2>Add New Product</h2>
 
       <!--Add enctype — without this, file won't upload -->
-      <form method="POST" action="/admin/products/add" enctype="multipart/form-data">
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <label>Product Name *</label>
         <input type="text" name="name" placeholder="e.g. Silk Saree"
